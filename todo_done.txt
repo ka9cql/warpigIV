@@ -48,3 +48,5 @@ Turn off Power Management on the wlan0 WiFi interface
     Add this line to /etc/rc.local -
         /sbin/iw dev wlan0 set power_save off
 
+Chop the MIC element off the Baofeng 888 (otherwise wind noises, etc) would trigger RF transmission on the APRS output frequency!!!
+
