@@ -1,0 +1,18 @@
+# Enable the I2C interface
+dtparam=i2c_arm=on
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+enable_uart=1
+dtoverlay=pi3-disable-bt
+dtoverlay=pi3-miniuart-bt
+
+# Enable Ethernet-over-USB so plugging a laptop USB cable into the Pi's
+# USB port will let you ssh in
+dtoverlay=dwc2
+start_x=1
+gpu_mem=128
+
+# Enable PWM-as-audio-output (PWM0 and PWM1)
+dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
+

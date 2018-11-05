@@ -2,6 +2,8 @@
 
 # Executables
 
-# Specific files
+# Specific files/directories
 sccs
 pictures/*.jpg
+home.pi
+usr.local.bin

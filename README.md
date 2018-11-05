@@ -17,3 +17,10 @@ It is *not* the responsibility of this repository's author(s) to prevent you fro
 
 You have been warned...
 
+
+DEPENDENCY ALERT!
+-----------------
+Don't forget to check out the "pifm" git repository and place it in Warpig's /home/pifm directory!
+
+The "pifm" project is used to generate APRS packets using Warpig's real-time sensor data
+

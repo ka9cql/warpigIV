@@ -44,7 +44,7 @@ cat /etc/motd
 (/usr/bin/nohup /usr/local/bin/tempDaemon 2>&1 >> /usr/local/bin/tempdata.log)&
 
 # Start sending telemetry!
-###(/usr/bin/nohup /usr/local/bin/sendTelemetry)&
+(/usr/bin/nohup /usr/local/bin/sendTelemetry)&
 
 # Start sending APRS!
 (/usr/bin/nohup /home/pifm/sendAPRS)&
@@ -54,7 +54,6 @@ cat /etc/motd
 
 # Start sending FSQ
 #(/usr/bin/nohup /usr/local/bin/testFSQ 2>&1 >> /usr/local/bin/fsqdata.log)&
-
 
 exit 0
 

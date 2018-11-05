@@ -1,0 +1,18 @@
+
+
+TO-DO list:
+
+SET THE TIME if no NTP server is reachable upon power-up
+
+DELETE THE /etc/wpa_supplicant/wpa_supplicant.conf.**NET FILE
+
+ENSURE that the wpa_supplicant.conf.OPEN file is being used by issuing this command -
+
+       cp /etc/wpa_supplicant/wpa_supplicant.conf.OPEN /etc/wpa_supplicant/wpa_supplicant.conf
+
+Start sending telemetry via Internet
+
+Start sending APRS packets out via Baofeng 888 + VOX
+
+MODIFY (or delete) the /etc/motd file that contains these instructions (IF MODIFY - add contact info?)
+
