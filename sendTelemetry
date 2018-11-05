@@ -1,0 +1,16 @@
+#!/bin/sh
+###########################
+# sendTelemetry - Start trying to send telemetry back through OPEN APs
+###########################
+
+PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+cd /usr/local/bin
+
+while [ 1 ]
+do
+	/usr/local/bin/balloonSend.py
+done 2>&1 >> /usr/local/bin/packets.log
+
+exit 0

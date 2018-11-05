@@ -1,0 +1,26 @@
+#!/bin/sh
+##################
+# tempDaemon - Script intended to be launched in the background, and which
+#              repeatedly refreshes the last-known-good temperature (C and F)
+#              data stored on the filesystem for other programs to pick up later.
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-01-22  msipin  Created
+#  2018-02-10  msipin  Removed extra delay out of error condition
+#################
+
+while [ 1 ]
+do
+    NOW=`date '+%Y-%m-%d,%H:%M:%S'`
+    WHERE=`do_temp`
+    if [ $? -eq 0 ]
+    then
+	echo "${WHERE},${NOW}"
+    else
+    	echo "Error: TEMPERATURE_ERROR at $NOW"
+    fi
+    sleep 60
+done
+
+exit 0

@@ -1,0 +1,30 @@
+#!/bin/sh
+##################
+# cameraDaemon - Script intended to be launched in the background, and which
+#                takes a picture every (x) seconds (defaults to 60)
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-05-18  msipin  Created
+#################
+
+# OFFICIAL TIME -
+PICTURE_INTERVAL_SECS=60	# Time between successive pictures (in seconds)
+
+# TEST ONLY -
+##PICTURE_INTERVAL_SECS=10	# Time between successive pictures (in seconds)
+
+while [ 1 ]
+do
+    NOW=`date '+%Y-%m-%d,%H:%M:%S'`
+    WHERE=`do_camera`
+    if [ $? -eq 0 ]
+    then
+	echo "${WHERE},${NOW}"
+    else
+    	echo "Error: GPS_ERROR at $NOW"
+    fi
+    sleep ${PICTURE_INTERVAL_SECS}
+done
+
+exit 0

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+data1=`getpos`
+data2=`gettemp`
+data3=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
+data4=`date --rfc-2822`
+
+echo -n ${data1}
+echo -n ","
+echo -n ${data2}
+echo -n ","
+echo -n ${data3}
+echo -n ","
+echo -n ${data4}
+
+exit 0
+

@@ -1,0 +1,60 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# Set the configuration for the serial (or USB-to-Serial)
+# port of the GPS chip
+# VK18U7 connected to UART/serial port
+# Also tried, but FAILED, Stratux wired directly to UART/serial port
+PORT=/dev/serial0
+# Stratux connected over USB
+#PORT=/dev/ttyACM0
+
+stty -F ${PORT} 9600
+stty -F ${PORT} ispeed 9600
+stty -F ${PORT} ospeed 9600
+stty -F ${PORT} -cstopb
+stty -F ${PORT} -crtscts
+stty -F ${PORT} -parenb
+
+# Turn off Power Management on the WLAN0 interface
+/sbin/iw dev wlan0 set power_save off
+
+cat /etc/motd
+
+# Start the GPS daemon
+(/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
+
+# Start the temperature-reading daemon
+(/usr/bin/nohup /usr/local/bin/tempDaemon 2>&1 >> /usr/local/bin/tempdata.log)&
+
+# Start sending telemetry!
+###(/usr/bin/nohup /usr/local/bin/sendTelemetry)&
+
+# Start sending APRS!
+(/usr/bin/nohup /home/pifm/sendAPRS)&
+
+# Start the camera daemon
+(/usr/bin/nohup /usr/local/bin/cameraDaemon 2>&1 >> /usr/local/bin/cameradata.log)&
+
+# Start sending FSQ
+#(/usr/bin/nohup /usr/local/bin/testFSQ 2>&1 >> /usr/local/bin/fsqdata.log)&
+
+
+exit 0
+

@@ -1,0 +1,321 @@
+#!/bin/sh
+##################
+# do_gps - Go get GPS data from the GPS's serial port and write whatever is
+#          "good" to the "last-known-good" files
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-01-21  msipin/epowell  Derived from current getpos, and "xx" experiments
+#  2018-02-03  msipin  Corrected error in how many GPS lines I needed - was set to 600, should
+#                      have been 60!
+#  2018-02-09  msipin  Filtered out 0.000000 LAT/LONGs from /var/tmp/gps2.txt intermediate file
+#  2018-06-02  msipin  Filtered out bad GPS fixes!
+#################
+
+# Eric's Bluetooth GPS Keychain - Works with only 10 lines
+#DEV=/dev/rfcomm4
+# Stratux USB GPS dongle - NEEDS 60 LINES TO DECODE !!!
+#DEV=/dev/ttyACM0
+# Eric's "SKYRC" USB GPS + data-logger device
+#DEV=/dev/ttyUSB0
+# DIYmall VK18U7 serial device - NEEDS ABOUT 20 LINES! (FAILED! Likely due to static shock)
+# Stratux wired directly to UART/serial - NEEDS 60 LINES TO DECODE !!!
+DEV=/dev/serial0
+
+
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+#  MAKE SURE that whatever serial port you use here ("DEV") is the same one as is
+#  being initialized in /etc/rc.local to 9600 baud.  (E.G. the /etc/rc.local setting
+#  initializes the same serial port as the one we intend to use here!)
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+
+
+
+# All last-known-good data will be written to files in the following directory -
+LAST_KNOWN_GOOD_DIR=/usr/local/bin
+
+
+LINES_FROM_GPS=60
+
+# Pickup number of lines to read from the GPS
+if [ $# -ge 1 ]
+then
+	# Pickup number-of-lines to read from GPS before continuing
+	LINES_FROM_GPS=$1
+fi
+
+
+###
+### *CAUTION*   *CAUTION*   *CAUTION*   *CAUTION* 
+###
+### *DO* *NOT* remove any GPS data that may already have been acquired
+### (because *any* data, no mater how "old", is at least something!!)
+###
+###echo "0.000000,U" > ${LAST_KNOWN_GOOD_DIR}/lat
+###echo "0.000000,U" > ${LAST_KNOWN_GOOD_DIR}/lon
+###echo "00.00,U" > ${LAST_KNOWN_GOOD_DIR}/alt
+
+
+##      $1      $2      $3   $4       $5  (THERE IS NO ALTITUDE DATA IN $GPGLL)
+##    $GPGLL,3429.57264,N,11724.45153,W,000426.00,A,A*72
+
+##              $3    $4   $5       $6 $7 $8  $9   $10  $11 (ALTITUDE IS $10, $11 F=feet M=meters)
+##    $GPGGA 3429.5651 N 11724.4548 W  2  11 0.89 334.2 M
+##
+##              $4      $5   $6       $7   (THERE IS NO ALTITUDE DATA IN $GPRMC)
+##    $GPRMC A 3429.5651 N 11724.4548 W spd/knots  true-course datestamp variation e/w
+
+##  if ($1 == "$GPGGA")		print $3","$4","$5","$6","$10","$11 - $10=ALT, $11=F/M
+##  if ($1 == "$GPRMC")		print $4","$5","$6","$7","ALT","F/M
+##  if ($1 == "$GPGLL")		print $2","$3","$4","$5","ALT","F/M
+
+
+# grep -v "NMEA unknown msg" ${DEV} | head -40 | egrep "GPGGA|GPRMC|GPGLL" | head | awk -F"," '{
+# Stratus needs "head -60"
+# VK18U7 needs about -30 (lots of "GPSTXT" messages)
+#
+### NEW STRATEGY - We are going to be a background data-collection daemon, so
+###                it would be ok to wait for more data, to ensure we have
+###                enough meaningful data
+
+# Ensure device is available
+ls ${DEV} 2>/dev/null 1>/dev/null
+ret_val=$?
+#echo "DEBUG: ret_val: $ret_val"
+if [ $ret_val != 0 ]
+then
+	# Mark all GPS position data as "tainted"
+	LAT="0.000000"
+	LON="0.000000"
+	LON_EW="U"
+	ALT="00.00"
+	F_M="U"
+
+	# LAT -
+	##echo "DEBUG: current lat file - "`cat ${LAST_KNOWN_GOOD_DIR}/lat`
+	LAT=$(cat ${LAST_KNOWN_GOOD_DIR}/lat | cut -f1 -d,)
+	LAT_NS=$(cat ${LAST_KNOWN_GOOD_DIR}/lat | sed "s/N/n/" | sed "s/S/s/" | cut -f2 -d,)
+	##echo "DEBUG: picked up lat/dir - ${LAT},${LAT_NS}"
+	echo "${LAT},${LAT_NS}" > ${LAST_KNOWN_GOOD_DIR}/lat
+
+
+	# LON -
+	##echo "DEBUG: current lon file - "`cat ${LAST_KNOWN_GOOD_DIR}/lon`
+	LON=$(cat ${LAST_KNOWN_GOOD_DIR}/lon | cut -f1 -d,)
+	LON_EW=$(cat ${LAST_KNOWN_GOOD_DIR}/lon | sed "s/E/e/" | sed "s/W/w/" | cut -f2 -d,)
+	##echo "DEBUG: picked up lon/dir - ${LON},${LON_EW}"
+	echo "${LON},${LON_EW}" > ${LAST_KNOWN_GOOD_DIR}/lon
+
+
+	# ALT -
+	##echo "DEBUG: current alt file - "`cat ${LAST_KNOWN_GOOD_DIR}/alt`
+	ALT=$(cat ${LAST_KNOWN_GOOD_DIR}/alt | cut -f1 -d,)
+	ALT_FM=$(cat ${LAST_KNOWN_GOOD_DIR}/alt | sed "s/F/f/" | sed "s/M/m/" | cut -f2 -d,)
+	##echo "DEBUG: picked up alt/fm - ${ALT},${ALT_FM}"
+	echo "${ALT},${ALT_FM}" > ${LAST_KNOWN_GOOD_DIR}/alt
+
+	exit 2
+fi
+
+# 2018-06-02  msipin/epowell - Decode whether we have a valid fix -
+#                              The following line was an early attempt to decode each valid fix condition using egrep and regex -
+### head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | egrep ",[E,W],[1,2,6],|[0-9],A,[0-9,-,+]|[0-9],A,[A-Z]" | head | awk -F"," 'BEGIN {
+#                              The above is likely no longer needed as we've added conditions to each sentence-type's awk printing test statement
+head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | head | awk -F"," 'BEGIN {
+	ALT="00.00"
+	F_M="U"
+	LAT_NS="U"
+	LON_EW="U"
+}
+{
+
+LAT="0.000000"
+LAT_EXT=0.0
+LON="0.000000"
+LON_EXT=0.0
+
+if (($1 == "$GPGLL") && ($7 == "A")) {
+	#print $1" - "$2","$3","$4","$5","ALT","F/M
+
+	LAT=($2/100)
+	LON=($4/100)
+
+	LAT_NS=$3
+	LON_EW=$5
+}
+
+
+if (($1 == "$GPGGA") && (($7 == 1) || ($7 == 2) || ($7 == 6))) {
+	#print $1" - "$3","$4","$5","$6","$10","$11 # $10=ALT, $11=F/M
+
+	LAT=($3/100)
+	LON=($5/100)
+
+	# $GPGGA is the only GPS sentence that has altitude and ft/m fields -
+	ALT=$10
+	F_M=$11
+
+	LAT_NS=$4
+	LON_EW=$6
+}
+
+
+if (($1 == "$GPRMC") && ($3 == "A")) {
+	#print $1" - "$4","$5","$6","$7","ALT","F/M
+
+	LAT=($4/100)
+	LON=($6/100)
+
+	LAT_NS=$5
+	LON_EW=$7
+}
+
+
+if ((LAT > 0.00) && (LON > 0.00)) {
+	LAT_DEG=int(LAT)
+	LAT_EXT=((LAT - LAT_DEG)*100)
+	##LAT_MIN=int(LAT_EXT)
+	##LAT_SEC=((LAT_EXT - LAT_MIN)*100)
+	##printf "LAT_DEG=%d\n",LAT_DEG
+	##printf "LAT_EXT=%d\n",LAT_EXT
+	##printf "LAT_MIN=%d\n",LAT_MIN
+	##printf "LAT_SEC=%2.2f\n",LAT_SEC
+
+
+	LON_DEG=int(LON)
+	LON_EXT=((LON - LON_DEG)*100)
+	##LON_MIN=int(LON_EXT)
+	##LON_SEC=((LON_EXT - LON_MIN)*100)
+	##printf "LON_DEG=%d\n",LON_DEG
+	##printf "LON_EXT=%d\n",LON_EXT
+	##printf "LON_MIN=%d\n",LON_MIN
+	##printf "LON_SEC=%2.2f\n",LON_SEC
+
+	LAT=LAT_DEG + (LAT_EXT/60)
+	LON=LON_DEG + (LON_EXT/60)
+
+}
+
+printf "%02.6f,%s,%03.6f,%s,%05.2f,%s\n",LAT,LAT_NS,LON,LON_EW,ALT,F_M
+
+}
+END {
+printf "%02.6f,%s,%03.6f,%s,%05.2f,%s\n",LAT,LAT_NS,LON,LON_EW,ALT,F_M
+}' | grep "," | sed "s/,/ /g" | grep -v 0.000000 > /var/tmp/gps2.txt
+
+### echo "DEBUG: status of command: $?"
+
+### echo
+### echo
+### echo "/var/tmp/gps2.txt -"
+### echo "########################"
+### cat /var/tmp/gps2.txt
+### echo "########################"
+### echo
+
+
+# OUTPUT OF THE ABOVE (without sort or sort-unique, and tail) -
+#      34.492780,N,117.407648,W,00.00,U
+#      34.492780,N,117.407648,W,992.00,M
+#      34.492780,N,117.407648,W,992.00,M
+#      0.000000,U,0.000000,U,00.00,U
+#      0.000000,U,0.000000,U,00.00,U
+#      34.492780,N,117.407647,W,00.00,U
+#      34.492780,N,117.407647,W,992.40,M
+#      34.492780,N,117.407647,W,992.40,M
+#      0.000000,U,0.000000,U,00.00,U
+#      0.000000,U,0.000000,U,00.00,U
+
+LAT="0.000000"
+LAT_NS="U"
+LON="0.000000"
+LON_EW="U"
+ALT="00.00"
+ALT_FM="U"
+
+while read -r TMP_LAT TMP_LAT_NS TMP_LON TMP_LON_EW TMP_ALT TMP_ALT_FM; do
+    ###echo $TMP_LAT $TMP_LAT_NS $TMP_LON $TMP_LON_EW $TMP_ALT $TMP_ALT_FM
+
+##  34.492771 N 117.407623 W 00.00 U
+##  34.492771 N 117.407623 W 993.60 M
+##  34.492771 N 117.407623 W 993.60 M
+##  34.492780 N 117.407648 W 00.00 U
+##  34.492780 N 117.407648 W 992.00 M
+##  34.492780 N 117.407648 W 992.00 M
+##  0.000000 U 0.000000 U 00.00 U
+##  0.000000 U 0.000000 U 00.00 U
+##  34.492780 N 117.407647 W 00.00 U
+##  34.492780 N 117.407647 W 992.40 M
+##  34.492780 N 117.407647 W 992.40 M
+##  0.000000 U 0.000000 U 00.00 U
+##  0.000000 U 0.000000 U 00.00 U
+
+    if [ -n ""$TMP_LAT_NS"" -a ""$TMP_LAT"" != 0 -a ""$TMP_LAT_NS"" != "U" ]
+    then
+	#echo "Picking up new LAT..."
+	LAT=$TMP_LAT
+	#echo "New LAT: $LAT"
+	LAT_NS=$TMP_LAT_NS
+    fi
+
+    if [ -n ""$TMP_LON_EW"" -a ""$TMP_LON"" != 0 -a ""$TMP_LON_EW"" != "U" ]
+    then
+	#echo "Picking up new LON..."
+	LON=$TMP_LON
+	LON_EW=$TMP_LON_EW
+    fi
+
+    if [ -n ""$TMP_ALT_FM"" -a ""$TMP_ALT"" != 0 -a ""$TMP_ALT_FM"" != "U" ]
+    then
+	#echo "Picking up new ALT..."
+	ALT=$TMP_ALT
+	ALT_FM=$TMP_ALT_FM
+    fi
+
+done < /var/tmp/gps2.txt
+
+##echo "After reading..."
+##echo $LAT $LAT_NS $LON $LON_EW $ALT $ALT_FM
+
+if [ ""$LAT_NS"" != "U" ]
+then
+    # We have a valid LAT
+    # Write it to "last known good lat" file
+    echo $LAT","$LAT_NS > ${LAST_KNOWN_GOOD_DIR}/lat
+else
+    # Do not know. Get last-known-good value
+    LAT=$(cat ${LAST_KNOWN_GOOD_DIR}/lat | cut -f1 -d,)
+    LAT_NS=$(cat ${LAST_KNOWN_GOOD_DIR}/lat | sed "s/N/n/" | sed "s/S/s/" | cut -f2 -d,)
+fi
+
+if [ ""$LON_EW"" != "U" ]
+then
+    # We have a valid LON
+    # Write it to "last known good lon" file
+    echo $LON","$LON_EW > ${LAST_KNOWN_GOOD_DIR}/lon
+else
+    # Do not know. Get last-known-good value
+    LON=$(cat ${LAST_KNOWN_GOOD_DIR}/lon | cut -f1 -d,)
+    LON_EW=$(cat ${LAST_KNOWN_GOOD_DIR}/lon | sed "s/E/e/" | sed "s/W/w/" | cut -f2 -d,)
+fi
+
+if [ ""$ALT_FM"" != "U" ]
+then
+    # We have a valid ALT
+    # Write it to "last known good alt" file
+    echo $ALT","$ALT_FM > ${LAST_KNOWN_GOOD_DIR}/alt
+else
+    # Do not know. Get last-known-good value
+    ALT=$(cat ${LAST_KNOWN_GOOD_DIR}/alt | cut -f1 -d,)
+    ALT_FM=$(cat ${LAST_KNOWN_GOOD_DIR}/alt | sed "s/F/f/" | sed "s/M/m/" | cut -f2 -d,)
+fi
+
+
+##echo
+##echo "Final, FINAL -"
+echo "${LAT},${LAT_NS},${LON},${LON_EW},${ALT},${ALT_FM}"
+
+exit 0
+

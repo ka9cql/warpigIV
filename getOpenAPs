@@ -1,0 +1,87 @@
+#!/bin/sh
+#######################
+# getOpenAPs - Show all available open WiFi APs
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-01-20  msipin  Derived from current version of warpig
+##########################
+
+##tmp_file1=/var/tmp/$$.getBssids.1
+tmp_file1=./bssids.out
+
+#max_age=999999	# in milliseconds (999999 ms = "whatever the driver says...")
+#max_age=120000	# in milliseconds (120000 ms = 120 seconds = 2 mins)
+#max_age=60000	# in milliseconds ( 60000 ms =  60 seconds = 1 min)
+max_age=30000	# in milliseconds ( 30000 ms =  30 seconds = 1/2 min)
+#max_age=8000	# in milliseconds (  8000 ms =   8 seconds - This is approx. how long a 2G+5G scan seems to take)
+
+#IFACE=wlan0
+## IFACE=`iwconfig 2>&1 | grep wlan | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+IFACE=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+#IFACE=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
+
+if [ -n ""$IFACE"" ]
+then
+	echo
+	echo "Using adapter ${IFACE}..."
+else
+	echo
+	echo "NO suitable (and/or unassociated) WiFi adapter found."
+	echo "Exiting."
+	echo
+	exit 2
+fi
+
+##trap "rm -f $tmp_file1; exit 0" 0 1 2 3 6 12 15
+
+echo
+
+
+GPS_POS="?,?,?,?"
+
+# Pickup date
+CURR_TIME="now"
+
+
+rm -f $tmp_file1
+##iwlist wlan0 scanning > $tmp_file1
+iwlist ${IFACE} scanning > $tmp_file1
+
+
+############################
+#           AA:BB:CC:11:22:33
+#           161
+#           Quality=50/70  -60 dBm  
+#           Gufus1234
+#           70
+###############################################
+
+###################
+# TODO: Add Encryption yes/no (or "open") to output -
+#       STRING WILL LOOK LIKE THIS:
+#                       $1     $2  $3
+#                   Encryption key:on
+#                   Encryption key:off
+###################
+
+cat $tmp_file1 | egrep " Channel:|ESSID:|Signal level=|Last beacon:|..:..:..:..:..:..|Encryption key:" | awk -F ":" '{ if (NF == 2) print $2; if (NF == 1) print $0; if (NF == 3) print $3; if (NF > 6) { print $(NF-5)":"$(NF-4)":"$(NF-3)":"$(NF-2)":"$(NF-1)":"$NF; }; }' | sed "s/\"//g" | sed "s/Signal level=//" | sed "s/ms ago//" | gawk -v MAX_AGE=${max_age} '{ i++; if (i == 1) mac=$0; if (i == 2) chan=$0; if (i == 3) rssi=$(NF-1); if (i == 4) crypt=$0; if (i == 5) ssid=$0; if (i == 6) { if ($1 <= MAX_AGE) { printf "%03d %03d %s %s %s\n", (0-rssi),chan,mac,crypt,ssid; }; i=0; }; }' | sort -k 1,3 | awk '{
+
+
+if ($4 == "off") {
+
+	printf "%s,%d,%d,", $3,$2,(0-$1);
+	for (i=5; i < 6; i++) printf "%s", $i;
+	for (i=6; i <= NF; i++) printf " %s", $i;
+	if ($4 == "off") printf ",__OPEN__"
+	else printf ","
+	printf("\n")
+}
+
+
+}'
+
+echo
+
+exit 0
+

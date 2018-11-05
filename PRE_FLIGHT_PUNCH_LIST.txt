@@ -1,0 +1,46 @@
+PRE-FLIGHT PUNCH LIST -
+==============================
+
+MAKE A COMPLETE BACKUP of the SD card as close to the launch as you can!!  (All those "little tweaks" will eventually be forgotten...)
+    IF YOU HAVE NOT DONE SO - QUICKLY get a pen/paper and jot down everybody's "quick thoughts" and anything you may have "tweaked"/modified since the last backup was done
+
+ENSURE THE SD CARD HAS ADEQUATE STORAGE SPACE REMAINING FOR YOUR FLIGHT's NEEDS
+    (e.g. If you are flying a camera, have you set the picture interval correctly to match the expected flight duration?)
+
+Switch WiFi configuration over to use only "OPEN" Access Points
+    (See /etc/motd for instructions)
+
+ENSURE NTP (Network Time Protocol) IS AVAILABLE AT FINAL POWER-UP!!!!
+    Verify that the Pi's time is SET ACCURATELY BEFORE RELEASE!!!
+
+Swap out all test batteries in all modules for "flight-ready" (aka fully-charged) batteries
+    * Main CPU
+    * RF transmitter
+    * L.E.D./flasher
+    * (etc.)
+
+Verify that all subsystems have properly initialed
+
+WAIT FOR GPS LOCK (if GPS is being used...)
+
+VERIFY TELEMETRY-REPORTING THROUGH INTERNET TO FINAL DATA COLLECTOR
+
+VERIFY RF-based TELEMETRY REPORTING
+    * APRS
+    * FSQ
+
+VERIFY THAT *ALL* TELEMETRY-RECORDING DATA RECEIVERS ARE SET TO "RECORD" MODE!!
+
+Turn on "blinking LED" / beepers / (etc.)(
+
+CHECK THE WIND
+    Send out tester balloon, if you can...
+
+GET CAMERAS READY, and decide who is going to release, who is going to film, and where each should stand in relation to the sun, each other, etc.
+
+CHECK THE PUNCH LIST!!!
+
+CHECK THE PUNCH LIST!!!
+
+ ---- CHECK THE PUNCH LIST!!!!!!!! ----
+

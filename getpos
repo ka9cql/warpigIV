@@ -1,0 +1,21 @@
+#!/bin/sh
+##################
+# getpos - Return the "last-known-good" GPS position data (LAT/LON/ALT)
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-01-17  msipin/epowell  Created
+#  2018-01-18  msipin          Added support for GPGLL sentence. Fixed bug whereby did not
+#                              use the ${DEV} variable anywhere (doh!).
+#  2018-01-21  msipin/epowell  Added altitude field
+#  2018-01-21  msipin/epowell  Simplified, with most of its original logic forming the (new)
+#                              "do_gps" command
+#################
+
+# All last-known-good data will be obtained from files in the following directory -
+LAST_KNOWN_GOOD_DIR=/usr/local/bin
+
+echo `cat ${LAST_KNOWN_GOOD_DIR}/lat`","`cat ${LAST_KNOWN_GOOD_DIR}/lon`","`cat ${LAST_KNOWN_GOOD_DIR}/alt`
+
+exit 0
+

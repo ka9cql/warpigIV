@@ -1,0 +1,50 @@
+TO-DOs and DONEs for Warpig-IV
+==========================
+
+TO-DOs -
+========
+Set default Raspberry Pi audio output to use PWM0/PWM1 (Warpig-IV only uses PWM0)
+    Add the following to /boot/config.txt -
+        dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
+
+Set default playback Raspberry Pi audio output level to -10.55 dBm
+    Use alsamixer command to do this
+
+Set *both* temperature readings to the same (single) I2C sensor (TC74A5)
+
+((Experiment: Try using RFKill every (x) seconds to "free up" the WiFi interface to try new OPEN Access Points, instead of getting "stuck" on one - that is possibly something that has no Internet access, or might have drifted "out-of-sight" by the time we go to try using it...))
+
+Replace all ".git" IP addresses, "Project name", callsign and credentials (etc.) with "final" versions in APRS-reporting/telemetry/etc. locations within scripts/files/etc.
+    Set correct IP address in "balloonSend.py"
+    Set correct Amateur Radio callsign in "makePacket.sh"
+    Set correct APRS path (e.g. "WIDEx-y") in "makePacket.sh"
+
+Change all telemetry-reporting, picture-taking, "redo"/"retry" intervals to "flight values" (e.g. "repeat every-x-seconds...")
+
+Attach crepe streamers, visual aides, (etc.) to payload
+
+Attach CONTACT INFORMATION to payload (aka "Reward If Found", "email/call us at...")
+
+REMOVE TESTING FILES - including:
+    * wpa_config.WHATEVER files that contain non-flight WPA2 passwords!!
+    * Old pictures, logfiles, GPS data, (etc.) that may have been picked up via .git from previous flights
+
+ENSURE THE SD CARD HAS ADEQUATE STORAGE SPACE REMAINING FOR YOUR FLIGHT's NEEDS
+    (e.g. If you are flying a camera, have you set the picture interval correctly to match the expected flight duration?)
+
+MAKE A COMPLETE BACKUP of the SD card as close to the launch as you can!!  (All those "little tweaks" will eventually be forgotten...)
+
+
+
+DONEs -
+========
+Set VOX sensitivity on Baofeng 888 to 1
+    We think this is the "most sensitive" setting, but can't definitively prove it
+
+Set all 16 channels of Baofeng 888 to 144.390 FM Simplex with High power
+    Use CHIPR radio-programming software to do this... more to follow...
+
+Turn off Power Management on the wlan0 WiFi interface
+    Add this line to /etc/rc.local -
+        /sbin/iw dev wlan0 set power_save off
+
