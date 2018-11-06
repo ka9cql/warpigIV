@@ -1,9 +1,10 @@
 #!/bin/sh
 
-data1=`getpos`
-data2=`gettemp`
-data3=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
-data4=`date --rfc-2822`
+data1="Warpig-V"
+data2=`getpos`
+data3=`gettemp`
+data4=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
+data5=`date --rfc-2822`
 
 echo -n ${data1}
 echo -n ","
@@ -12,6 +13,8 @@ echo -n ","
 echo -n ${data3}
 echo -n ","
 echo -n ${data4}
+echo -n ","
+echo -n ${data5}
 
 exit 0
 
