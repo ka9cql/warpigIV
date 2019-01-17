@@ -24,3 +24,12 @@ Don't forget to check out the "pifm" git repository and place it in Warpig's /ho
 
 The "pifm" project is used to generate APRS packets using Warpig's real-time sensor data
 
+IF YOU ARE USING DON (KJ6FO's) FSQ CODE - don't forget to grab his KJ6FO_FSQ.cpp (et al) from is "Flying Squirrels" github account.
+(This executable is the one mentioned in the 'testFSQ' shell script.)
+
+
+BUILD ALERT!
+------------
+You have to issue a "make readtemp" command while in the directory that contains the "readtemp.c" source code. Then make sure that executable is linked in the /usr/local/bin directory.
+
+That executable is the one that issues I2C commands to read the temperature sensor(s).

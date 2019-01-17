@@ -1,0 +1,104 @@
+#!/bin/sh
+###########################
+# getstats - Shell script to get stats to be displayed on the tiny OLED screen
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-02-28  msipin  Added this header. Added notice during APRS updates.
+#                      Added reading of the first ADC channel's voltage.
+#                      Dropped hundredths-of-a-meter from altitude reading.
+###########################
+
+tmp_file1="/var/tmp/$$.1"
+tmp_file2="/var/tmp/$$.2"
+
+trap "rm -f $tmp_file1 $tmp_file2; exit 0" 0 1 2 3 6 12 15
+
+rm -f $tmp_file1 $tmp_file2
+
+
+##tail -1 /usr/local/bin/gpsdata.log > $tmp_file1
+
+/usr/local/bin/getpos | awk '{ printf "%s,",$1 }' >> $tmp_file1
+/usr/local/bin/gettemp | awk '{ printf "%s,",$1 }' >> $tmp_file1
+# When ADC is hooked up, uncomment the following line -
+##/usr/local/bin/readADC.py | awk -F"," '{ printf "%s,%s\n",$1,$2 }' >> $tmp_file1
+
+#      $1   $2     $3    $4  $5   $6 $7$8 $9 $10
+#  34.492765,N,117.407613,W,983.00,M,23,C,73,F
+
+cat $tmp_file1 | awk -F"," '{
+  # Print lat N/S lon E/W
+  printf "%2.4f %s %3.4f %s\n", $1,$2,$3,$4
+  # Print alt temp batt
+  printf "%5.1f %s %d %s %s %s\n", $5,$6,$9,$10,$11,$12
+}'
+
+date | awk '{ printf "%s %s %s %s\n", $2,$3,$4,$6 }'
+
+
+# Check if APRS packet is currently being sent
+rslt=`ps -eaf | grep pifm | grep -c 44100.mono`
+if [ ""$rslt"" = "1" ]
+then
+	# YES, APRS update in progress!
+	echo "  * APRS UPDATE *   "
+else
+	# No, no APRS update in progress
+	# Ok to display "lower-priority" things
+
+	# See if we are on an OPEN on ENCRYPTED wifi
+	# (OPEN is expected prior to flight!)
+	if [ ""`grep -c 'key_mgmt=NONE' /etc/wpa_supplicant/wpa_supplicant.conf`"" = "1" ]
+	then
+		echo " **ANY OPEN WIFI**"
+	else
+		echo "!! ENCRYPTED WIFI !!"
+	fi
+fi
+
+
+
+
+#tail -1 /usr/local/bin/packets.log > $tmp_file2
+
+/sbin/iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off" | awk '{ for (i=1;i<= NF; i++) { printf "%s ",$i; }; } END { printf "\n"; }' > $tmp_file2
+
+#
+# wlan0 IEEE 802.11 ESSID:"sipynet" Mode:Managed Frequency:2.427 GHz Access Point: B4:75:0E:F8:39:9A
+
+cat $tmp_file2 | awk -F'"' '{
+  # Print SSID
+  printf "%s\n", $2
+}'
+
+cat $tmp_file2 | sed "s/ Access Point: /:/" | awk -F":" '{
+  # Print WiFi freq and BSSID
+  printf "Freq: %s\n", $4
+  printf "%s:%s:%s:%s:%s:%s\n", $5,$6,$7,$8,$9,$10
+}'
+
+exit 0
+
+
+tmp_file1 contents with awk -F"," -
+
+    $1   $2     $3    $4  $5   $6      $7     $8
+34.492753,N,117.407582,W,982.90,M,2018-02-28,09:08:41
+
+
+tmp_file2 contents
+
+
+WITH awk -F"," -
+   $1        $2    $3      $4   $5  $6   $7 $8 9 10 11                                $12
+Warpig-II,34.492780,N,117.407457,W,963.70,M,22,C,71,F,wlan0 IEEE 802.11 ESSID:"sipynet" Mode:Managed Frequency:2.427 GHz Access Point: B4:75:0E:F8:39:9A
+
+
+WITH awk -F'"' -
+                                      $1                                         $2                        $3
+Warpig-II,34.492780,N,117.407457,W,963.70,M,22,C,71,F,wlan0 IEEE 802.11 ESSID:"sipynet" Mode:Managed Frequency:2.427 GHz Access Point: B4:75:0E:F8:39:9A
+
+WITH awk -F":" -
+                                      $1                                             $2            $3            $4
+Warpig-II,34.492780,N,117.407457,W,963.70,M,22,C,71,F,wlan0 IEEE 802.11 ESSID:"sipynet" Mode:Managed Frequency:2.427 GHz Access Point: B4:75:0E:F8:39:9A
