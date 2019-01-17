@@ -1,0 +1,44 @@
+#!/bin/sh
+####################
+# makeLinks - Create the symbolic links from this repository to the system's /usr/local/bin directory
+#
+# NOTE: This only needs to be done once, and should be done by "root"
+####################
+
+# The directory of the current repository
+REPO_DIR=/home/warpigIV
+
+echo
+
+for A in balloonSend.py \
+	cameraDaemon \
+	camera.py \
+	do_camera \
+	do_gps \
+	do_temp \
+	getAPData \
+	getpos \
+	getstats \
+	gettemp \
+	gp \
+	gpsDaemon \
+	readtemp \
+	sendTelemetry \
+	stats.py \
+	tempDaemon \
+	testFSQ \
+	Vera.ttf \
+	warpig 
+do
+
+	ln -s ${REPO_DIR}/$A /usr/local/bin
+done
+
+
+echo
+echo "CAN NOT AUTOMATE THIS NEXT ONE - Must be done manually (IF FSQ is needed) -"
+echo "KJ6FO_FS2 -> /home/Si5351Arduino/src/KJ6FO_FS2"
+echo
+
+exit 0
+
