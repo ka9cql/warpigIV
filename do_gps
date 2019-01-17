@@ -12,6 +12,8 @@
 #  2018-06-02  msipin  Filtered out bad GPS fixes!
 #  2019-01-16  msipin  Changed from INCLUDING only certain $GPGGA sentence fix-types to EXCLUDING
 #                      known-bad types. As of right now, I only know one bad type - Type 0 (zero).
+#                      Allowed "all" valid sentence lines into last-stage AWK script (no reason not
+#                      to, actually) - in case altitude sentences weren't getting through.
 #################
 
 # Eric's Bluetooth GPS Keychain - Works with only 10 lines
@@ -21,7 +23,8 @@
 # Eric's "SKYRC" USB GPS + data-logger device
 #DEV=/dev/ttyUSB0
 # DIYmall VK18U7 serial device - NEEDS ABOUT 20 LINES! (FAILED! Likely due to static shock)
-# Stratux wired directly to UART/serial - NEEDS 60 LINES TO DECODE !!!
+#                                *AND* tends to lose GPS lock during 20M FSQ transmissions!!
+# Stratux (or any other device) that is wired directly to UART/serial (needs 60 lines to decode!)
 DEV=/dev/serial0
 
 
@@ -74,9 +77,9 @@ fi
 ##  if ($1 == "$GPGLL")		print $2","$3","$4","$5","ALT","F/M
 
 
-# grep -v "NMEA unknown msg" ${DEV} | head -40 | egrep "GPGGA|GPRMC|GPGLL" | head | awk -F"," '{
-# Stratus needs "head -60"
-# VK18U7 needs about -30 (lots of "GPSTXT" messages)
+# grep -v "NMEA unknown msg" ${DEV} | head -XX | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," '{
+# Stratus needs "head -60" for the "XX" value
+# VK18U7 needs about -30 (lots of "GPSTXT" messages) for the "XX" value
 #
 ### NEW STRATEGY - We are going to be a background data-collection daemon, so
 ###                it would be ok to wait for more data, to ensure we have
@@ -123,9 +126,9 @@ fi
 
 # 2018-06-02  msipin/epowell - Decode whether we have a valid fix -
 #                              The following line was an early attempt to decode each valid fix condition using egrep and regex -
-### head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | egrep ",[E,W],[1,2,6],|[0-9],A,[0-9,-,+]|[0-9],A,[A-Z]" | head | awk -F"," 'BEGIN {
+### head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | egrep ",[E,W],[1,2,6],|[0-9],A,[0-9,-,+]|[0-9],A,[A-Z]" | awk -F"," 'BEGIN {
 #                              The above is likely no longer needed as we've added conditions to each sentence-type's awk printing test statement
-head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | head | awk -F"," 'BEGIN {
+head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
 	ALT="00.00"
 	F_M="U"
 	LAT_NS="U"
