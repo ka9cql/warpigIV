@@ -20,12 +20,13 @@ You have been warned...
 
 DEPENDENCY ALERT!
 -----------------
-Don't forget to check out the "pifm" git repository and place it in Warpig's /home/pifm directory!
+Don't forget to check out the "pifm" git repository and place it in Warpig's /home/pifm directory, and then run "make" on it!
 
 The "pifm" project is used to generate APRS packets using Warpig's real-time sensor data
 
-IF YOU ARE USING DON (KJ6FO's) FSQ CODE - don't forget to grab his KJ6FO_FSQ.cpp (et al) from is "Flying Squirrels" github account.
-(This executable is the one mentioned in the 'testFSQ' shell script.)
+Don't forget to check out the "direwolf" git repository, place it in Warpig's /home/direwolf directory, and BUILD IT!
+
+IF YOU ARE USING DON (KJ6FO's) FSQ CODE - don't forget to grab his KJ6FO_FSQ.cpp (et al) from his "Flying Squirrels" github account, change the callsign to YOURS and then BUILD IT. You must also symbolically link the KJ6FO_FSQ executable to the /usr/local/bin directory.  (That executable is the one used in the 'testFSQ' shell script.)
 
 
 BUILD ALERT!
