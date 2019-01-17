@@ -32,10 +32,10 @@ stty -F ${PORT} -cstopb
 stty -F ${PORT} -crtscts
 stty -F ${PORT} -parenb
 
+cat /etc/motd
+
 # Turn off Power Management on the WLAN0 interface
 /sbin/iw dev wlan0 set power_save off
-
-cat /etc/motd
 
 # Start the GPS daemon
 (/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
