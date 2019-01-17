@@ -153,5 +153,8 @@ while True:
 
     # Display image.
     disp.image(image)
-    disp.display()
+    try:
+        disp.display()
+    except:
+        pass
     time.sleep(.75)

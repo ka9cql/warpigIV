@@ -7,7 +7,8 @@
 #  2018-05-18  msipin  Created
 #  2018-05-24  epowell Added parameters to adapt to both motion and full-sun conditions
 #  2018-06-02  epowell Swapped awb and exposure parameters
-#  2018-06-03  epowell Corrected --exposure (was auto, made it sports)
+#  2018-06-03  epowell Corrected --exposure (was sun, made it sports)
+#  2018-11-06  epowell/msipin  Modified for Warpig-V
 ##########################
 
 PICTURE_DIR=/usr/local/bin/pictures
@@ -21,11 +22,15 @@ echo "Taking picture at ${NOW}..."
 ## /usr/bin/raspistill --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
 
 # Eric's adjustments, flipping horiz and vert -
+## /usr/bin/raspistill --awb auto --exposure sun --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
 ## /usr/bin/raspistill --awb auto --exposure sports --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
 
 # Eric's adjustments (corrected: awb/exposure switched)
-##/usr/bin/raspistill --awb auto --exposure sports --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-/usr/bin/raspistill --awb auto --exposure auto --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
+##/usr/bin/raspistill --awb auto --exposure sun --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
+##/usr/bin/raspistill --awb auto --exposure auto --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
+
+# 2018-11-06  Modified for Warpig-V
+/usr/bin/raspistill --awb sun --exposure auto --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
 
 exit $?
 
