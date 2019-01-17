@@ -8,9 +8,13 @@
 #  2018-02-20  msipin  Ensured leading zeros in lat and lon. Added ability to convert some
 #                      GPS's "non-NMEA" (aka decimal) LAT/LON values into NMEA-compatible
 #                      format.
-#  2018-11-05  msipin  THIS IS NOT THE FINAL VERSION - I just changed the names to Warpig-IV
-#                      but this file will have to be overwritten by actual file copied from
-#                      Warpig-III's successful flight modifications.
+#  2018-02-22  msipin  Trimmed output, tried specifying Keller (Keller Peak) repeater in path
+#  2018-06-04  msipin/epowell  Adapted for St. Louis testing, and for using AGW/AGPE (spelling?)
+#  2018-11-01  msipin/epowell  Adjusted for using Baofeng 888 as transmitter, rather than BCM built-in oscillator
+#  2018-11-04  msipin/epowell  Bumped up to "Warpig-IV" - otherwise same as prior (NOTE: THIS MEANS that this
+#                              version will work with *both* Baofeng 888 + VOX and the BCM internal oscillator
+#                              to generate APRS position reports.)
+#  2019-01-16  msipin          Replaced my call with "N0CALL". Allowed multiple temperatures to be transmitted.
 ######################
 
 # All last-known-good data will be written to files in the following directory -
@@ -18,7 +22,7 @@ LAST_KNOWN_GOOD_DIR=/usr/local/bin
 
 # If need to convert GPS output to "NMEA-compatible" format, set the following
 # variable to "1". IF NOT, set it to "0" -
-GPS_TO_NMEA=0	# NOTE: "ORIG GPS's" = 0, "Microcenter GPS" =1
+GPS_TO_NMEA=1	# NOTE: "ORIG GPS's" = 0, "Microcenter GPS" =1
 
 AUDIO_FILE="packet.Loc.wav"
 
@@ -33,17 +37,18 @@ fi
 
 
 
-# Your callsign (MANDATORY!)
-MYCALL="WARP1G-4"
+# Your callsign (MANDATORY!) - Use "dash-eleven" ("-11") to automatically mark as a balloon
+MYCALL="N0CALL-11"
+
 # Desired -
 # ZULU_DDHHMM="110736"
 ZULU_DDHHMM=`date "+%d%H%M"`
 
 # Latitude, format: hhmm.ssN (or  hhmm.ssS)
 # Desired -
-#LAT="XXXX.57N"
+#LAT="3429.57N"
 # What is in the last-known-good file -
-# XX.XXXX45,N
+# 34.492745,N
 ##echo "DEBUG: READ-LAT: `cat ${LAST_KNOWN_GOOD_DIR}/lat`"
 # If need to convert GPS format to "NMEA format"...
 if [ ""$GPS_TO_NMEA"" = "1" ]
@@ -64,9 +69,9 @@ fi
 
 # Longitude, format: hhh.mmssssss.00W (or hhh.mmssssss.00E)
 # Desired -
-# LON="YYYYY.87W"
+# LON="11740.87W"
 # What is in the last-known-good file -
-# YYY.YYYY27,W
+# 117.407627,W
 ##echo "DEBUG: READ-LON: `cat ${LAST_KNOWN_GOOD_DIR}/lon`"
 # If need to convert GPS format to "NMEA format"...
 if [ ""$GPS_TO_NMEA"" = "1" ]
@@ -93,8 +98,10 @@ fi
 # 985.10,M
 ALT=`cat ${LAST_KNOWN_GOOD_DIR}/alt | awk -F"," '{ printf "%06d",int($1*3.3); }'`
 
-# Temperature (degrees F)
-DEGF=`cat ${LAST_KNOWN_GOOD_DIR}/temp | awk -F"," '{ printf "Temp. %d %s",$3,toupper($4); }'`
+# Temperature (degrees F) - ONE SENSOR -
+#DEGF=`cat ${LAST_KNOWN_GOOD_DIR}/temp | awk -F"," '{ printf "Temp. %d %s",$3,toupper($4); }'`
+# Temperature (degrees F) - TWO SENSORS -
+DEGF=`cat ${LAST_KNOWN_GOOD_DIR}/temp | awk -F"," '{ printf "Temps %d/%d %s",$3,$7,toupper($4); }'`
 
 # Course (heading), in degrees format: ddd
 HDG="090"
@@ -103,11 +110,19 @@ HDG="090"
 SPD="001"
 
 # Message, freeform: "This is a message"
-MSG="WarPig-IV telemetry "
+MSG="Warpig-VI telemetry "
 
 
 rm -f $AUDIO_FILE
 rm -f z.txt
+
+# aprs.dat file contents - 
+## N0CALL-2>APNXXX:#First test packet
+## N0CALL-2>APNXXX,WIDE1-1:/090738z3449.27N/11740.79WOWarpig-III balloon/A=003285
+## N0CALL-2>APNXXX,WIDE2-2:/090738z3449.27N/11740.79WOWarpig-III balloon/A=003285
+## N0CALL-2>APNXXX,WIDE3-3:/090738z3449.27N/11740.79WOWarpig-III balloon/A=003285
+## N0CALL-2>APNXXX:#Next-to-last test packet
+## N0CALL-2>APNXXX:#Last test packet
 
 
 ## USING APRS (can't yet get or build it for Pi Zero...) -
@@ -118,20 +133,49 @@ rm -f z.txt
 ########
 ##gen_packets -o packet.Loc.wav -r 44100 aprs.dat
 
-echo "${MYCALL}>APNXXX:#First test packet" >> z.txt
+#echo "${MYCALL}>APNXXX:#First test packet" >> z.txt
 
 ## THE FOLLOWING WORKED, GREAT! -
-echo "${MYCALL}>APNXXX:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>APNXXX,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>APNXXX,WIDE2-2:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>BEACON:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>BEACON,WIDE2-2:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>BEACON,WIDE3-3:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
-echo "${MYCALL}>BEACON,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+###echo "${MYCALL}>APNXXX:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>APNXXX,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>APNXXX,WIDE2-2:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>BEACON:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+###echo "${MYCALL}>BEACON,WIDE2-2:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+###echo "${MYCALL}>BEACON,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
 
-## FOR SOME REASON, the last packet does not seem to send properly, so put one or two more with "gibberish" to flush the others
-echo "${MYCALL}>APNXXX:#Next-to-last test packet" >> z.txt
-echo "${MYCALL}>APNXXX:#Last test packet" >> z.txt
+# THE CURRENT MOBILE STANDARD - echo "${MYCALL}>WIDE1-1,WIDE2-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>BEACON,WIDE1*:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>BEACON,WIDE2-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+
+## 2018-11-02 WORKS AGAINST KELLER, from home with chimney 2m/440 antenna (NOTE: MUST BE REPEATED 2x FOR VOX!)
+##echo "${MYCALL}>BEACON,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>BEACON,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+
+## 2018-11-03 Tried this because we're launching at night, and theorize we'll need more help getting
+##            into an iGate (NOTE: DON'T FORGET TO DO IT 2x FOR Baofeng 888 + VOX!)
+## 2018-11-04  IT JUST SO HAPPENS that this same z.txt file format will work with *BOTH* the
+##             Baofeng 888 + VOX and the BCM built-in oscillator!!!
+echo "${MYCALL}>BEACON,WIDE2-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+echo "${MYCALL}>BEACON,WIDE2-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+
+
+
+## Match Eric's radio output - WORKS on my house chimney 2m/440 antenna
+##echo "${MYCALL}>APDR10,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>APDR10,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+
+
+
+
+##echo "${MYCALL}>BEACON,WIDE3-3:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>BEACON,WIDE1-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+##echo "${MYCALL}>WIDE1-1,WIDE2-1:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+###echo "${MYCALL}>KELLER,WIDE1*,WIDE2:/${ZULU_DDHHMM}z${LAT}/${LON}O${MSG}/A=${ALT} ${DEGF}" >> z.txt
+
+## FOR SOME REASON, the last packet does not seem to send properly when sent using BCM built-in oscillator, so put one or two
+## more with "gibberish" to flush the others
+###echo "${MYCALL}>APNXXX:#Next-to-last test packet" >> z.txt
+##echo "${MYCALL}>APNXXX:#Last test packet" >> z.txt
 
 gen_packets -o ${AUDIO_FILE} -r 44100 z.txt
 
