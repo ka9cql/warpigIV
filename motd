@@ -9,7 +9,10 @@ TO-DO list:
    DEV_OUTSIDE paths to your own device's *UNIQUE* serial numbers!!
 
 
-SET THE TIME if no NTP server is reachable upon power-up
+CHANGE THE GPU-to-CPU MEMORY ALLOCATON TO "all CPU"
+
+INCORPORATE THE GPS-DERIVED TIME (instead of NTP) TO SET THE SYSTEM CLOCK
+    IN THE MEAN TIME: SET THE TIME MANUALLY if no NTP server is reachable upon power-up
 
 DELETE THE /etc/wpa_supplicant/wpa_supplicant.conf.**NET FILE
 
