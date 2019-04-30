@@ -3,5 +3,5 @@
 # getDirewolfData - Get data for Direwolf to put at the end of its BEACON string
 #########################################
 
-tail -1 /usr/local/bin/tempdata.log | awk -F"," '{ print "Temps",$3"/"$7,"F " }'
+tail -1 /usr/local/bin/tempdata.log | awk -F"," '{ print " Temps",$3"/"$7,"F " }'
 
