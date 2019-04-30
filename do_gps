@@ -14,6 +14,8 @@
 #                      known-bad types. As of right now, I only know one bad type - Type 0 (zero).
 #                      Allowed "all" valid sentence lines into last-stage AWK script (no reason not
 #                      to, actually) - in case altitude sentences weren't getting through.
+#  2019-04-29  msipin  Made adjustments to allow GPSD to take over reading from the
+#                      GPS serial port.
 #################
 
 # Eric's Bluetooth GPS Keychain - Works with only 10 lines
@@ -35,7 +37,6 @@ DEV=/dev/serial0
 #  initializes the same serial port as the one we intend to use here!)
 # NOTE NOTE NOTE NOTE -
 # NOTE NOTE NOTE NOTE -
-
 
 
 # All last-known-good data will be written to files in the following directory -
@@ -128,7 +129,14 @@ fi
 #                              The following line was an early attempt to decode each valid fix condition using egrep and regex -
 ### head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | egrep ",[E,W],[1,2,6],|[0-9],A,[0-9,-,+]|[0-9],A,[A-Z]" | awk -F"," 'BEGIN {
 #                              The above is likely no longer needed as we've added conditions to each sentence-type's awk printing test statement
-head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
+# THE FOLLOWING WAS PERFECT WHEN WE WERE ABLE TO READ FROM THE GPS SERIAL PORT (aka before GPSD took it over!) -
+#head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
+
+# THE FOLLOWING must be used if GPSD has taken over the job of reading from the GPS serial port -
+# WHEN GPSD has control, use gpspipe -r to read from the GPS
+/usr/bin/gpspipe -r | head -${LINES_FROM_GPS} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
+
+
 	ALT="00.00"
 	F_M="U"
 	LAT_NS="U"
