@@ -21,7 +21,8 @@ fi
 # port of the GPS chip
 # VK18U7 connected to UART/serial port
 # Also tried, but FAILED, Stratux wired directly to UART/serial port
-PORT=/dev/serial0
+#PORT=/dev/serial0
+PORT=/dev/ttyAMA0
 # Stratux connected over USB
 #PORT=/dev/ttyACM0
 
@@ -37,7 +38,8 @@ cat /etc/motd
 # Turn off Power Management on the WLAN0 interface
 /sbin/iw dev wlan0 set power_save off
 
-# Start the GPS daemon
+# Start the GPS daemon - NOTE: GPSD WILL TAKE OVER THE GPS!!!
+# WHEN GPSD has control, use gpspipe -r to read from the GPS
 (/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
 
 # Start the temperature-reading daemon
