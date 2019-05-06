@@ -21,7 +21,8 @@ fi
 # port of the GPS chip
 # VK18U7 connected to UART/serial port
 # Also tried, but FAILED, Stratux wired directly to UART/serial port
-PORT=/dev/serial0
+#PORT=/dev/serial0
+PORT=/dev/ttyAMA0
 # Stratux connected over USB
 #PORT=/dev/ttyACM0
 
@@ -37,7 +38,8 @@ cat /etc/motd
 # Turn off Power Management on the WLAN0 interface
 /sbin/iw dev wlan0 set power_save off
 
-# Start the GPS daemon
+# Start the GPS daemon - NOTE: GPSD WILL TAKE OVER THE GPS!!!
+# WHEN GPSD has control, use gpspipe -r to read from the GPS
 (/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
 
 # Start the temperature-reading daemon
@@ -46,7 +48,13 @@ cat /etc/motd
 # Start sending telemetry!
 (/usr/bin/nohup /usr/local/bin/sendTelemetry)&
 
-# Start sending APRS!
+# Start sending APRS! - NOTE: DIREWOLF WILL TAKE OVER THE USB SOUNDCARD AND TX!!!
+# WHEN DIREWOLF has control, we talk to the outbox/ directory of "kissutil" to
+# get out position reports sent out
+#
+# START DIREWOLF - cd /home/direwolf;./direwolf -t 0
+# START KISSUTIL - cd /home/direwolf;./kissutil -T %H:%M:%S -f /home/direwolf/outbox/ | tee -a /home/direwolf/kiss.log
+# THEN and only then start sendAPRS -
 (/usr/bin/nohup /home/pifm/sendAPRS)&
 
 # Start the camera daemon

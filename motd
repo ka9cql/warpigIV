@@ -2,7 +2,17 @@
 
 TO-DO list:
 
-SET THE TIME if no NTP server is reachable upon power-up
+** CHANGE THE TELEMETRY-REPORTING IP ADDRESS TO YOUR TELEMETRY-COLLECTOR ADDRESS!!
+
+** WE CHANGED THE TEMP SENSORS TO 1-WIRE: YOU *MUST* enable 1-wire in the kernel,
+   set pin used (e.g. GPIO 5) in /boot/config.txt, and then set the DEV_INSIDE and
+   DEV_OUTSIDE paths to your own device's *UNIQUE* serial numbers!!
+
+
+CHANGE THE GPU-to-CPU MEMORY ALLOCATON TO "all CPU"
+
+INCORPORATE THE GPS-DERIVED TIME (instead of NTP) TO SET THE SYSTEM CLOCK
+    IN THE MEAN TIME: SET THE TIME MANUALLY if no NTP server is reachable upon power-up
 
 DELETE THE /etc/wpa_supplicant/wpa_supplicant.conf.**NET FILE
 

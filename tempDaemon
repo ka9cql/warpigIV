@@ -8,6 +8,7 @@
 #
 #  2018-01-22  msipin  Created
 #  2018-02-10  msipin  Removed extra delay out of error condition
+#  2019-03-04  msipin  Adjusted delay for 1-wire devices, as they take longer to read
 #################
 
 while [ 1 ]
@@ -20,7 +21,8 @@ do
     else
     	echo "Error: TEMPERATURE_ERROR at $NOW"
     fi
-    sleep 60
+    #sleep 60	# TC74 devices
+    sleep 58	# DS18B20 1-wire devices
 done
 
 exit 0

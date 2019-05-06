@@ -16,3 +16,5 @@ gpu_mem=128
 # Enable PWM-as-audio-output (PWM0 and PWM1)
 dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
 
+# Enable 1-wire on GPIO pin 5 (pin 29)
+dtoverlay=w1-gpio,gpiopin=5

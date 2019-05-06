@@ -1,32 +1,46 @@
 #!/bin/sh
 ##################
-# do_temp - Read the TC74 temperature sensor and write the current temp to
-#          "last-known-good" files
+# do_temp - Read the DS18B20 temperature sensors and write the current temps to
+#          "last-known-good" file
 #
 # HISTORICAL INFORMATION -
 #
-#  2018-01-22  msipin/epowell  Created
-#  2018-05-18  msipin/epowell  Supported command-line I2C address
-#  2018-05-24  msipin  Replaced original (one) temp sensor with two and matched
-#                      Eric's sensor addresses. Read from and reported on both
-#  2018-06-02  msipin/epowell  Swapped sensors due to how we wired the sensors
-#  2018-11-05  msipin/epowell  Modified for internal-temp-only Warpig-IV
-#  2019-01-16  msipin          Modified for dual-temperature Warpigs
+#  2019-03-04  msipin  Derived from 2019-01-16 version of TC74 reader script
 #################
+
+# NOTE: THE FOLLOWING DEVICE PATHS *MUST* BE CHANGED BEFORE EACH FLIGHT!!!
+
+# INSIDE temperature device path -
+DEV_INSIDE=/sys/bus/w1/devices/28-0214801acdff/w1_slave
+
+# OUTSIDE temperature device path -
+DEV_OUTSIDE=/sys/bus/w1/devices/28-021480adcbff/w1_slave
+
 
 # All last-known-good data will be written to files in the following directory -
 LAST_KNOWN_GOOD_DIR=/usr/local/bin
 
 
-temp1=`readtemp 0x48`		# Temperature sensor part no. TC74A0
-temp2=`readtemp 0x4d`		# Temperature sensor part no. TC74A5
+# Print t1,C,t1,F,t2,C,t2,F
+temp1=`cat ${DEV_INSIDE} | awk '{ printf "%s ",$0}' | grep " YES " | awk -F"=" '{ printf "%d,C,%d,F", ($NF/1000.0), (($NF/1000.0)*9.0/5.0+32.0) } END { if (NR < 1) print "?,C,?,F" }'`
+temp2=`cat ${DEV_OUTSIDE} | awk '{ printf "%s ",$0}' | grep " YES " | awk -F"=" '{ printf "%d,C,%d,F", ($NF/1000.0), (($NF/1000.0)*9.0/5.0+32.0) } END { if (NR < 1) print "?,C,?,F" }'`
 
-##echo $temp2 > ${LAST_KNOWN_GOOD_DIR}/temp
+
 echo $temp2,$temp1 > ${LAST_KNOWN_GOOD_DIR}/temp
-##echo $temp2,$temp2 > ${LAST_KNOWN_GOOD_DIR}/temp
-##echo $temp2
 echo $temp2,$temp1
-##echo $temp2,$temp2
 
 exit 0
+
+
+DS18B20 output examples -
+
+root@balloon1:/sys/bus/w1/devices# echo;cat /sys/bus/w1/devices/28-0214801acdff/w1_slave;echo
+
+95 01 4b 46 7f ff 0c 10 65 : crc=65 YES
+95 01 4b 46 7f ff 0c 10 65 t=25312
+
+root@balloon1:/sys/bus/w1/devices# echo;cat /sys/bus/w1/devices/28-021480adcbff/w1_slave;echo
+
+96 01 4b 46 7f ff 0c 10 a0 : crc=a0 YES
+96 01 4b 46 7f ff 0c 10 a0 t=25375
 

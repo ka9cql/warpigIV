@@ -1,0 +1,32 @@
+#!/bin/sh
+##################
+# do_temp - Read the TC74 temperature sensor and write the current temp to
+#          "last-known-good" files
+#
+# HISTORICAL INFORMATION -
+#
+#  2018-01-22  msipin/epowell  Created
+#  2018-05-18  msipin/epowell  Supported command-line I2C address
+#  2018-05-24  msipin  Replaced original (one) temp sensor with two and matched
+#                      Eric's sensor addresses. Read from and reported on both
+#  2018-06-02  msipin/epowell  Swapped sensors due to how we wired the sensors
+#  2018-11-05  msipin/epowell  Modified for internal-temp-only Warpig-IV
+#  2019-01-16  msipin          Modified for dual-temperature Warpigs
+#################
+
+# All last-known-good data will be written to files in the following directory -
+LAST_KNOWN_GOOD_DIR=/usr/local/bin
+
+
+temp1=`readtemp 0x48`		# Temperature sensor part no. TC74A0
+temp2=`readtemp 0x4d`		# Temperature sensor part no. TC74A5
+
+##echo $temp2 > ${LAST_KNOWN_GOOD_DIR}/temp
+echo $temp2,$temp1 > ${LAST_KNOWN_GOOD_DIR}/temp
+##echo $temp2,$temp2 > ${LAST_KNOWN_GOOD_DIR}/temp
+##echo $temp2
+echo $temp2,$temp1
+##echo $temp2,$temp2
+
+exit 0
+
