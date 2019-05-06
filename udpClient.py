@@ -11,6 +11,7 @@ which were 53 (DNS), 80 (HTTP) and 2947 (GPSD)
 2018-01-30  msipin  Added check for valid payload, as people are abusing this
                     on port 53/1053. Also immediately flush output so no more
                     waiting to see if anything new has arrived.
+2019-05-06  msipin  Flushed output on startup
 '''
  
 import socket
@@ -41,6 +42,8 @@ except socket.error , msg:
      
 print 'Socket bind complete'
  
+print 'Waiting for clients...'
+sys.stdout.flush()
 #now keep talking with the client
 while 1:
     # receive data from client (data, addr)
