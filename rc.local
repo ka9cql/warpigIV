@@ -42,8 +42,11 @@ cat /etc/motd
 # WHEN GPSD has control, use gpspipe -r to read from the GPS
 (/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
 
-# Start the temperature-reading daemon
+# Start the inside/outside temperature-reading daemon
 (/usr/bin/nohup /usr/local/bin/tempDaemon 2>&1 >> /usr/local/bin/tempdata.log)&
+
+# Start the CPU/GPU chip temperature-reading daemon
+(/usr/bin/nohup /usr/local/bin/chiptemp 2>&1 >> /usr/local/bin/chipdata.log)&
 
 # Start sending telemetry!
 (/usr/bin/nohup /usr/local/bin/sendTelemetry)&
@@ -55,6 +58,7 @@ cat /etc/motd
 # START DIREWOLF - cd /home/direwolf;./direwolf -t 0
 # START KISSUTIL - cd /home/direwolf;./kissutil -T %H:%M:%S -f /home/direwolf/outbox/ | tee -a /home/direwolf/kiss.log
 # THEN and only then start sendAPRS -
+# Then start the LinBPQ Packet BBS system - cd /home/linbpq;./linbpq
 (/usr/bin/nohup /home/pifm/sendAPRS)&
 
 # Start the camera daemon
