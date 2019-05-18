@@ -1,0 +1,30 @@
+#!/bin/bash
+# Script: chiptemp
+# Purpose: Display the ARM CPU and GPU  temperature of Raspberry Pi 2/3
+# Derived from Vivek Gite's GPL v2.x+ code
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-03-11  msipin  Added this header. Removed redundant "C"/"F" fields and
+#                      reordered output when in "daemon" mode
+#  2019-05-17  msipin  Moved from "pitemp" to "chiptemp", substantially modified
+#                      output for use on warpigs.
+# -------------------------------------------------------
+
+
+echo "date,time,CPU_C,CPU_F,GPU_C,GPU_F"
+while [ 1 ]
+do
+	# Get CPU and GPU temperatures
+	cpu_C=`cat /sys/class/thermal/thermal_zone0/temp | awk '{ printf "%3.1f", $1/1000; }'`
+	cpu_F=`echo ${cpu_C} | awk '{ printf "%4.1f", ($1 *9.0/5.0 + 32.0); }'`
+	gpu_C=`sudo /opt/vc/bin/vcgencmd measure_temp | awk -F"=" '{ print $2 }' | awk -F"'" '{ print $1 }'`
+	gpu_F=`echo ${gpu_C} | awk '{ printf "%4.1f", ($1 *9.0/5.0 + 32.0); }'`
+
+	echo "`date '+%Y-%m-%d,%H:%M:%S'`,${cpu_C},${cpu_F},${gpu_C},${gpu_F}"
+
+	sleep 60
+done
+
+exit 0
+
