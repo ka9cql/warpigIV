@@ -8,6 +8,8 @@
 #  2019-05-17  msipin  Created
 #################
 
+MYCALL="N0CALL-11"
+
 # START DIREWOLF -
 cd /home/direwolf
 (/usr/bin/nohup /home/direwolf/direwolf -t 0 -qh -qd 2>&1 >> /dev/null)&
@@ -34,7 +36,7 @@ cd /home/pifm
 # /home/kiss/examples/test.py REQUIRES Direwolf *and* Kissutil
 # Then start our APRS message-parser/responder
 cd /home/pifm
-(/usr/bin/nohup /usr/bin/python3 /usr/local/bin/msgparser.py 2>&1 >> /usr/local/bin/APRSdata.log)&
+(/usr/bin/nohup /usr/bin/python3 /usr/local/bin/msgparser.py ${MYCALL} 2>&1 >> /usr/local/bin/APRSdata.log)&
 
 /bin/sleep 5
 
