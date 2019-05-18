@@ -53,7 +53,7 @@ cat /etc/motd
 
 # Start sending APRS! - NOTE: DIREWOLF WILL TAKE OVER THE USB SOUNDCARD AND TX!!!
 # WHEN DIREWOLF has control, we talk to the outbox/ directory of "kissutil" to
-# get out position reports sent out
+# get our position reports sent out
 #
 # START DIREWOLF - cd /home/direwolf;./direwolf -t 0
 # START KISSUTIL - cd /home/direwolf;./kissutil -T %H:%M:%S -f /home/direwolf/outbox/ | tee -a /home/direwolf/kiss.log
