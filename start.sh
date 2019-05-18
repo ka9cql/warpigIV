@@ -10,7 +10,7 @@
 
 # START DIREWOLF -
 cd /home/direwolf
-(/usr/bin/nohup /home/direwolf -t 0 -qh -qd 2>&1 >> /dev/null)&
+(/usr/bin/nohup /home/direwolf/direwolf -t 0 -qh -qd 2>&1 >> /dev/null)&
 
 # Direwolf opens ports 8000 and 8001
 

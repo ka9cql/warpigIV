@@ -59,7 +59,8 @@ cat /etc/motd
 # START KISSUTIL - cd /home/direwolf;./kissutil -T %H:%M:%S -f /home/direwolf/outbox/ | tee -a /home/direwolf/kiss.log
 # THEN and only then start sendAPRS -
 # Then start the LinBPQ Packet BBS system - cd /home/linbpq;./linbpq
-(/usr/bin/nohup /home/pifm/sendAPRS)&
+# NOTE: All of the above is done in start.sh -
+(/usr/bin/nohup /usr/local/bin/start.sh)&
 
 # Start the camera daemon
 (/usr/bin/nohup /usr/local/bin/cameraDaemon 2>&1 >> /usr/local/bin/cameradata.log)&
