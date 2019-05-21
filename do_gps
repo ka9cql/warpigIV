@@ -16,6 +16,7 @@
 #                      to, actually) - in case altitude sentences weren't getting through.
 #  2019-04-29  msipin  Made adjustments to allow GPSD to take over reading from the
 #                      GPS serial port.
+#  2019-05-21  msipin  Pushed gpspipe "flush error: broken pipe" message to /dev/null
 #################
 
 # Eric's Bluetooth GPS Keychain - Works with only 10 lines
@@ -134,7 +135,7 @@ fi
 
 # THE FOLLOWING must be used if GPSD has taken over the job of reading from the GPS serial port -
 # WHEN GPSD has control, use gpspipe -r to read from the GPS
-/usr/bin/gpspipe -r | head -${LINES_FROM_GPS} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
+/usr/bin/gpspipe -r 2>/dev/null | head -${LINES_FROM_GPS} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
 
 
 	ALT="00.00"
