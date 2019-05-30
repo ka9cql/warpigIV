@@ -6,15 +6,21 @@
 # HISTORICAL INFORMATION -
 #
 #  2019-03-04  msipin  Derived from 2019-01-16 version of TC74 reader script
+#  2019-05-30  msipin  Modified for Warpig-VII's 3 temperature sensors (inside,
+#                      outside and battery).
 #################
 
 # NOTE: THE FOLLOWING DEVICE PATHS *MUST* BE CHANGED BEFORE EACH FLIGHT!!!
 
+
 # INSIDE temperature device path -
-DEV_INSIDE=/sys/bus/w1/devices/28-0214801acdff/w1_slave
+DEV_INSIDE=/sys/bus/w1/devices/28-021480b234ff/w1_slave
 
 # OUTSIDE temperature device path -
-DEV_OUTSIDE=/sys/bus/w1/devices/28-021480adcbff/w1_slave
+DEV_OUTSIDE=/sys/bus/w1/devices/28-0214801899ff/w1_slave
+
+# BATTERY temperature device path -
+DEV_BATTERY=/sys/bus/w1/devices/28-0214803160ff/w1_slave
 
 
 # All last-known-good data will be written to files in the following directory -
@@ -24,10 +30,11 @@ LAST_KNOWN_GOOD_DIR=/usr/local/bin
 # Print t1,C,t1,F,t2,C,t2,F
 temp1=`cat ${DEV_INSIDE} | awk '{ printf "%s ",$0}' | grep " YES " | awk -F"=" '{ printf "%d,C,%d,F", ($NF/1000.0), (($NF/1000.0)*9.0/5.0+32.0) } END { if (NR < 1) print "?,C,?,F" }'`
 temp2=`cat ${DEV_OUTSIDE} | awk '{ printf "%s ",$0}' | grep " YES " | awk -F"=" '{ printf "%d,C,%d,F", ($NF/1000.0), (($NF/1000.0)*9.0/5.0+32.0) } END { if (NR < 1) print "?,C,?,F" }'`
+temp3=`cat ${DEV_BATTERY} | awk '{ printf "%s ",$0}' | grep " YES " | awk -F"=" '{ printf "%d,C,%d,F", ($NF/1000.0), (($NF/1000.0)*9.0/5.0+32.0) } END { if (NR < 1) print "?,C,?,F" }'`
 
 
-echo $temp2,$temp1 > ${LAST_KNOWN_GOOD_DIR}/temp
-echo $temp2,$temp1
+echo $temp2,$temp1,$temp3 > ${LAST_KNOWN_GOOD_DIR}/temp
+echo $temp2,$temp1,$temp3
 
 exit 0
 
