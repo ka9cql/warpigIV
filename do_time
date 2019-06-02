@@ -1,0 +1,66 @@
+#!/bin/sh
+##################
+# do_time - Set system time using the GPS (replaces the NTP daemon with GPS-time)
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-06-01  msipin  Pickup (and possibly also set) system time from GPS G[?]ZDA sentences.
+#################
+
+# Stratux (or any other device) that is wired directly to UART/serial (needs 60 lines to decode!)
+DEV=/dev/serial0
+
+
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+#  MAKE SURE that whatever serial port you use here ("DEV") is the same one as is
+#  being initialized in /etc/rc.local to 9600 baud.  (E.G. the /etc/rc.local setting
+#  initializes the same serial port as the one we intend to use here!)
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+
+
+LINES_FROM_GPS=60
+
+# Pickup number of lines to read from the GPS
+if [ $# -ge 1 ]
+then
+	# Pickup number-of-lines to read from GPS before continuing
+	LINES_FROM_GPS=$1
+fi
+
+
+# Ensure device is available
+ls ${DEV} 2>/dev/null 1>/dev/null
+ret_val=$?
+#echo "DEBUG: ret_val: $ret_val"
+if [ $ret_val != 0 ]
+then
+	exit 2
+fi
+
+
+
+# Pickup current time from GPS
+head -50 ${DEV} | egrep "G[A,B,L,N,P]ZDA" | tail -1 | awk -F"," '{
+#   $1     $2       $3 $4  $5  $6 $7
+#        HrMinSec   dy mn ccyy
+# $GNZDA,063619.000,02,06,2019,00,00*4D
+
+HR=substr($2,1,2)
+MN=substr($2,3,2)
+SC=substr($2,5,2)
+cmd="date \"+%T +%Y%m%d\" -s \""HR":"MN":"SC" "$5"-"$4"-"$3"\""
+print(cmd)
+system(cmd)
+
+}'
+
+exit 0
+
+
+date +%T -s "11:14:00"
+date +%Y%m%d -s "20120418"
+
+
+
