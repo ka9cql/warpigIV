@@ -1,0 +1,52 @@
+#!/bin/sh
+##################
+# do_high_alt - Set the GPS to high-altitude mode
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-06-01  msipin  Created
+#################
+
+# Stratux (or any other device) that is wired directly to UART/serial (needs 60 lines to decode!)
+DEV=/dev/serial0
+
+
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+#  MAKE SURE that whatever serial port you use here ("DEV") is the same one as is
+#  being initialized in /etc/rc.local to 9600 baud.  (E.G. the /etc/rc.local setting
+#  initializes the same serial port as the one we intend to use here!)
+# NOTE NOTE NOTE NOTE -
+# NOTE NOTE NOTE NOTE -
+
+
+LINES_FROM_GPS=60
+
+# Pickup number of lines to read from the GPS
+if [ $# -ge 1 ]
+then
+	# Pickup number-of-lines to read from GPS before continuing
+	LINES_FROM_GPS=$1
+fi
+
+
+# Ensure device is available
+ls ${DEV} 2>/dev/null 1>/dev/null
+ret_val=$?
+#echo "DEBUG: ret_val: $ret_val"
+if [ $ret_val != 0 ]
+then
+	exit 2
+fi
+
+
+# Set the GPS to high-altitude mode
+echo -n -e "\xb5\x62\x06\x24\x24\x00\xff\xff\x06\x03\x00\x00\x00\x00\x10\x27\x00\x00\x05\x00\xfa\x00\xfa\x00\x64\x00\x2c\x01\x00\x3c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x52\xe8" > ${DEV}
+
+
+
+exit 0
+
+
+
+
