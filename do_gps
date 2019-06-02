@@ -18,6 +18,8 @@
 #                      GPS serial port.
 #  2019-05-21  msipin  Pushed gpspipe "flush error: broken pipe" message to /dev/null
 #  2019-05-30  msipin  Allowed GxGGA/GxRMC/GxGLL messages (not just GP...)
+#  2019-06-01  msipin  Stopped using gpspipe, as we want to control the serial port to the GPS so
+#                      we can send various configuration messages to it.
 #################
 
 # Eric's Bluetooth GPS Keychain - Works with only 10 lines
@@ -131,12 +133,13 @@ fi
 #                              The following line was an early attempt to decode each valid fix condition using egrep and regex -
 ### head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | egrep ",[E,W],[1,2,6],|[0-9],A,[0-9,-,+]|[0-9],A,[A-Z]" | awk -F"," 'BEGIN {
 #                              The above is likely no longer needed as we've added conditions to each sentence-type's awk printing test statement
-# THE FOLLOWING WAS PERFECT WHEN WE WERE ABLE TO READ FROM THE GPS SERIAL PORT (aka before GPSD took it over!) -
-#head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "GPGGA|GPRMC|GPGLL" | awk -F"," 'BEGIN {
 
 # THE FOLLOWING must be used if GPSD has taken over the job of reading from the GPS serial port -
 # WHEN GPSD has control, use gpspipe -r to read from the GPS
-/usr/bin/gpspipe -r 2>/dev/null | head -${LINES_FROM_GPS} 2>/dev/null | egrep "G[A,B,L,N,P]GGA|G[A,B,L,N,P]RMC|G[A,B,L,N,P]GLL" | awk -F"," 'BEGIN {
+#/usr/bin/gpspipe -r 2>/dev/null | head -${LINES_FROM_GPS} 2>/dev/null | egrep "G[A,B,L,N,P]GGA|G[A,B,L,N,P]RMC|G[A,B,L,N,P]GLL" | awk -F"," 'BEGIN {
+
+# THE FOLLOWING WAS PERFECT WHEN WE WERE ABLE TO READ FROM THE GPS SERIAL PORT (aka before GPSD took it over!) -
+head -${LINES_FROM_GPS} ${DEV} 2>/dev/null | egrep "G[A,B,L,N,P]GGA|G[A,B,L,N,P]RMC|G[A,B,L,N,P]GLL" | awk -F"," 'BEGIN {
 
 
 	ALT="00.00"

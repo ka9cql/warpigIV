@@ -14,13 +14,13 @@
 
 
 # INSIDE temperature device path -
-DEV_INSIDE=/sys/bus/w1/devices/28-021480b234ff/w1_slave
+DEV_INSIDE=/sys/bus/w1/devices/28-02148018e7ff/w1_slave
 
 # OUTSIDE temperature device path -
-DEV_OUTSIDE=/sys/bus/w1/devices/28-0214801899ff/w1_slave
+DEV_OUTSIDE=/sys/bus/w1/devices/28-021480b27fff/w1_slave
 
 # BATTERY temperature device path -
-DEV_BATTERY=/sys/bus/w1/devices/28-0214803160ff/w1_slave
+DEV_BATTERY=/sys/bus/w1/devices/28-021480b26fff/w1_slave
 
 
 # All last-known-good data will be written to files in the following directory -
