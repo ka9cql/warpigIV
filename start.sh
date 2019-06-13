@@ -6,9 +6,15 @@
 # HISTORICAL INFORMATION -
 #
 #  2019-05-17  msipin  Created
+#  2019-06-13  msipin  Ensured the channel-changing GPIO pin is set to LOW (e.g.
+#                      sets radio to APRS channel) before launching direwolf.
 #################
 
 MYCALL="N0CALL-11"
+
+# Ensure the channel-changing GPIO pin is set to LOW
+/usr/bin/python /usr/local/bin/channelLo.py
+
 
 # START DIREWOLF -
 cd /home/direwolf
