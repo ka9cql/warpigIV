@@ -56,11 +56,14 @@ system(cmd)
 
 }'
 
+
+# Set the GPS to high-altitude mode
+/usr/local/bin/do_high_alt
+
+
+
 exit 0
 
-
-date +%T -s "11:14:00"
-date +%Y%m%d -s "20120418"
 
 
 
