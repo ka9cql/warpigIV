@@ -1,20 +1,24 @@
 # Enable the I2C interface
 dtparam=i2c_arm=on
 
-# Enable audio (loads snd_bcm2835)
-dtparam=audio=on
+# Enable audio (loads snd_bcm2835) (Did this before using USB soundcard)
+#dtparam=audio=on
+
+# Enable UART
 enable_uart=1
 dtoverlay=pi3-disable-bt
 dtoverlay=pi3-miniuart-bt
 
 # Enable Ethernet-over-USB so plugging a laptop USB cable into the Pi's
-# USB port will let you ssh in
-dtoverlay=dwc2
+# USB port will let you ssh in (Did this before using USB soundcard. Enabling
+# this interferes with USB soundcard operation.)
+#dtoverlay=dwc2
+
 start_x=1
 gpu_mem=128
 
-# Enable PWM-as-audio-output (PWM0 and PWM1)
-dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
+# Enable PWM-as-audio-output (PWM0 and PWM1) (Did before we used USB soundcard dongle for 2-way APRS commanding)
+#dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
 
-# Enable 1-wire on GPIO pin 5 (pin 29)
+# Enable 1-wire on GPIO pin 5 (pin 29) for tiny temperature sensors
 dtoverlay=w1-gpio,gpiopin=5

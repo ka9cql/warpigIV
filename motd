@@ -5,8 +5,12 @@ TO-DO list:
 ** CHANGE THE TELEMETRY-REPORTING IP ADDRESS TO YOUR TELEMETRY-COLLECTOR ADDRESS!!
 
 ** WE CHANGED THE TEMP SENSORS TO 1-WIRE: YOU *MUST* enable 1-wire in the kernel,
-   set pin used (e.g. GPIO 5) in /boot/config.txt, and then set the DEV_INSIDE and
-   DEV_OUTSIDE paths to your own device's *UNIQUE* serial numbers!!
+   set pin used (e.g. GPIO 5) in /boot/config.txt, and then set the DEV_INSIDE,
+   DEV_OUTSIDE and (optionally) DEV_BATTERY paths to your own device's *UNIQUE*
+   serial numbers!!
+
+** I DISABLED USB-Ethernet (USB-OTG) because I was having trouble with aplay locking
+   up the Syba USB sound card used with 2-way commanding (through direwolf + kissutil)
 
 
 CHANGE THE GPU-to-CPU MEMORY ALLOCATON TO "all CPU"

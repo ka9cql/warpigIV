@@ -38,8 +38,11 @@ cat /etc/motd
 # Turn off Power Management on the WLAN0 interface
 /sbin/iw dev wlan0 set power_save off
 
-# Start the GPS daemon - NOTE: GPSD WILL TAKE OVER THE GPS!!!
-# WHEN GPSD has control, use gpspipe -r to read from the GPS
+# Set the system time using GPS time -
+/usr/local/bin/do_time
+
+# Start the GPS daemon - NOTE: NOT using GPSD
+# IF GPSD has control, use gpspipe -r to read from the GPS
 (/usr/bin/nohup /usr/local/bin/gpsDaemon 2>&1 >> /usr/local/bin/gpsdata.log)&
 
 # Start the inside/outside temperature-reading daemon
