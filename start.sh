@@ -12,8 +12,9 @@
 
 MYCALL="N0CALL-11"
 
+# ONLY NEED THE FOLLOWING IF WE ARE DYNAMICALLY CHANGING BAOFENG 888 RADIO CHANNELS -
 # Ensure the channel-changing GPIO pin is set to LOW
-/usr/bin/python /usr/local/bin/channelLo.py
+#/usr/bin/python /usr/local/bin/channelLo.py
 
 
 # START DIREWOLF -
@@ -29,6 +30,8 @@ cd /home/direwolf
 # kissutil REQUIRES Direwolf
 # START KISSUTIL -
 cd /home/direwolf
+## We don't need to write to kiss.log anymore (2019-10-12, if not before))
+##(/usr/bin/nohup /home/direwolf/kissutil -f /home/direwolf/outbox/ 2>&1 >> /home/direwolf/kiss.log)&
 (/usr/bin/nohup /home/direwolf/kissutil -f /home/direwolf/outbox/ 2>&1 >> /dev/null)&
 
 /bin/sleep 10

@@ -1,10 +1,11 @@
 #!/bin/sh
 
-data1="Warpig9"
+data1="Warpig12"
 data2=`getpos`
 data3=`gettemp`
-data4=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
-data5=`date --rfc-2822`
+data4=`tail -5 /usr/local/bin/chipdata.log | grep -v "?" | tail -1 | awk -F"," '{ printf "%d,F ", $4 }'`
+data5=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
+data6=`date --rfc-2822`
 
 echo -n ${data1}
 echo -n ","
@@ -15,6 +16,8 @@ echo -n ","
 echo -n ${data4}
 echo -n ","
 echo -n ${data5}
+echo -n ","
+echo -n ${data6}
 
 exit 0
 

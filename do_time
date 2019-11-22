@@ -5,6 +5,8 @@
 # HISTORICAL INFORMATION -
 #
 #  2019-06-01  msipin  Pickup (and possibly also set) system time from GPS G[?]ZDA sentences.
+#  2019-11-03  msipin  Modified to only rely upon GPRMC, the "minimum recommended set" of data
+#                      that ALL GPS devices should send.
 #################
 
 # Stratux (or any other device) that is wired directly to UART/serial (needs 60 lines to decode!)
@@ -42,16 +44,19 @@ fi
 
 
 # Pickup current time from GPS
-head -50 ${DEV} | egrep "G[A,B,L,N,P]ZDA" | tail -1 | awk -F"," '{
-#   $1     $2       $3 $4  $5  $6 $7
-#        HrMinSec   dy mn ccyy
-# $GNZDA,063619.000,02,06,2019,00,00*4D
+head -100 ${DEV} | egrep "^.G[A,B,L,N,P]RMC," | grep ",A," | tail -1 | awk -F"," '{
 
 HR=substr($2,1,2)
 MN=substr($2,3,2)
 SC=substr($2,5,2)
-cmd="date \"+%T +%Y%m%d\" -s \""HR":"MN":"SC" "$5"-"$4"-"$3"\""
+
+YY=substr($10,5,2)
+MM=substr($10,3,2)
+DD=substr($10,1,2)
+
+cmd="date \"+%T +%Y%m%d\" -s \""HR":"MN":"SC" 20"YY"-"MM"-"DD"\""
 print(cmd)
+
 system(cmd)
 
 }'

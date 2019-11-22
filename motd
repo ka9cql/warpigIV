@@ -24,9 +24,18 @@ ENSURE that the wpa_supplicant.conf.OPEN file is being used by issuing this comm
 
        cp /etc/wpa_supplicant/wpa_supplicant.conf.OPEN /etc/wpa_supplicant/wpa_supplicant.conf
 
+ERASE all "replay-protection" APRS message-ID numbers from the /usr/local/bin/seen directory
+
 Start sending telemetry via Internet
 
-Start sending APRS packets out via Baofeng 888 + VOX
+Start sending APRS packets out via USB soundcard + KJ6FO I/F + GPIO 21 PTT + Baofeng 888
 
 MODIFY (or delete) the /etc/motd file that contains these instructions (IF MODIFY - add contact info?)
+
+
+ENSURE THAT THE CAMERA DAEMON IS RUNNING!!!
+ENSURE THAT THE CAMERA DAEMON IS RUNNING!!!
+
+ENSURE THAT THE CAMERA DAEMON IS RUNNING!!!
+ENSURE THAT THE CAMERA DAEMON IS RUNNING!!!
 

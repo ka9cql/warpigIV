@@ -19,7 +19,8 @@ DEV_INSIDE=/sys/bus/w1/devices/28-02148018e7ff/w1_slave
 # OUTSIDE temperature device path -
 DEV_OUTSIDE=/sys/bus/w1/devices/28-021480b27fff/w1_slave
 
-# BATTERY temperature device path -
+# BATTERY temperature device path (or just repeat DEV_INSIDE if not present) -
+# DEV_BATTERY=${DEV_INSIDE}
 DEV_BATTERY=/sys/bus/w1/devices/28-021480b26fff/w1_slave
 
 

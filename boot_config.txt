@@ -22,3 +22,6 @@ gpu_mem=128
 
 # Enable 1-wire on GPIO pin 5 (pin 29) for tiny temperature sensors
 dtoverlay=w1-gpio,gpiopin=5
+
+# Prevent lockups/crashes due to dynamic CPU throttling
+over_voltage=4

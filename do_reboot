@@ -1,0 +1,17 @@
+#!/bin/sh
+##########################
+# do_reboot - Pause a bit (to allow command to be replied-to over APRS) and then perform
+#             a system reboot.
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-10-14  msipin  Created from current "do_video"
+##########################
+
+sleep 60
+echo
+echo "Performing a commanded reboot at "`date`
+echo
+
+sudo reboot
+

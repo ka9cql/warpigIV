@@ -1,15 +1,10 @@
 #!/bin/sh
 ##########################
-# pistill - Take a picture using the "raspistill" command
+# do_video - Take a 30-second video using the "raspivid" command
 #
 # HISTORICAL INFORMATION -
 #
-#  2018-05-18  msipin  Created
-#  2018-05-24  epowell Added parameters to adapt to both motion and full-sun conditions
-#  2018-06-02  epowell Swapped awb and exposure parameters
-#  2018-06-03  epowell Corrected --exposure (was sun, made it sports)
-#  2018-11-06  epowell/msipin  Modified for Warpig-V
-#  2019-10-12  epowell/msipin  Added lat/lon/alt to picture name (starting with Warpig-10)
+#  2019-10-13  msipin  Created from current "do_camera"
 ##########################
 
 PICTURE_DIR=/usr/local/bin/pictures
@@ -23,24 +18,13 @@ LAT=$(cat ${LAST_KNOWN_GOOD_DIR}/lat | cut -f1 -d,)
 LON=$(cat ${LAST_KNOWN_GOOD_DIR}/lon | cut -f1 -d,)
 ALT=$(cat ${LAST_KNOWN_GOOD_DIR}/alt | cut -f1 -d,)
 
-echo "Taking picture at ${NOW}..."
+echo "Taking video at ${NOW}..."
 
-## /usr/bin/raspistill --timeout 1 --encoding jpg --hflip --vflip --datetime --output ${PICTURE_DIR}/${NOW}%010.jpg
-## /usr/bin/raspistill --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-
-# Eric's adjustments, flipping horiz and vert -
-## /usr/bin/raspistill --awb auto --exposure sun --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-## /usr/bin/raspistill --awb auto --exposure sports --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-
-# Eric's adjustments (corrected: awb/exposure switched)
-##/usr/bin/raspistill --awb auto --exposure sun --shutter 500 --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-##/usr/bin/raspistill --awb auto --exposure auto --timeout 1 --encoding jpg --hflip --vflip --output ${PICTURE_DIR}/${NOW}.jpg
-
-# 2018-11-06  Modified for Warpig-V
-# 2019-01-12  Added position (LAT/LON/ALT) to picture's filename (Warpig-10)
+# 30-second video in h264 mode takes about 61 MB
+##/usr/bin/raspivid --awb sun --exposure auto --shutter 500 --timeout 1 -t 30000 --hflip --vflip -o ${PICTURE_DIR}/${NOW}_${LAT}_${LON}_${ALT}.h264
 # 2019-01-13  Did not need to flip vertically for Warpig-10
 # 2019-11-02  Did not need to flip horizontally for Warpig-12
-/usr/bin/raspistill --awb sun --exposure auto --shutter 500 --timeout 1 --encoding jpg --output ${PICTURE_DIR}/${NOW}_${LAT}_${LON}_${ALT}.jpg
+/usr/bin/raspivid --awb sun --exposure auto --shutter 500 --timeout 1 -t 30000 -o ${PICTURE_DIR}/${NOW}_${LAT}_${LON}_${ALT}.h264
 
 exit $?
 

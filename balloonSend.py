@@ -4,7 +4,11 @@ from scapy.all import *
 import sys
 import subprocess
 
-dst_ip="111.222.111.222"
+# Eric's Warpig telemetry collector -
+dst_ip1="11.11.11.11"
+
+# Mike's Warpig telemetry collector -
+dst_ip2="22.22.22.22"
 
 ##data1= "Howdy from balloon!"
 
@@ -20,7 +24,13 @@ print("%s" % data)
 for src_prt in 53,2947:
 	for dst_prt in 53,80,2947:
 		##print("Sending s:%d d:%d\n" % (src_prt,dst_prt))
-		packet = IP(dst=dst_ip)/UDP(dport=dst_prt, sport=src_prt)/data
-		send(packet,verbose=False) 
+
+		# Send to dst_ip1 -
+		packet1 = IP(dst=dst_ip1)/UDP(dport=dst_prt, sport=src_prt)/data
+		send(packet1,verbose=False) 
+
+		# Send to dst_ip2 -
+		packet2 = IP(dst=dst_ip2)/UDP(dport=dst_prt, sport=src_prt)/data
+		send(packet2,verbose=False) 
 quit()
 
