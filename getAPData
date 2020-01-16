@@ -1,10 +1,12 @@
 #!/bin/sh
 
-data1="Warpig12"
+data1="Warpig13"
 data2=`getpos`
 data3=`gettemp`
 data4=`tail -5 /usr/local/bin/chipdata.log | grep -v "?" | tail -1 | awk -F"," '{ printf "%d,F ", $4 }'`
-data5=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
+### 2020-01-15 msipin Include WiFi link signal strength
+###data5=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:.." | grep -v "ESSID:off"`
+data5=`iwconfig 2>/dev/null | egrep "ESSID:|..:..:..:..:..:..|dBm" | egrep -v "ESSID:off|Tx-Power"`
 data6=`date --rfc-2822`
 
 echo -n ${data1}
