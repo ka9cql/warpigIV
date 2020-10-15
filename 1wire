@@ -1,0 +1,70 @@
+#!/bin/sh
+####################################
+# 1wire - Show status of 1-wire temperature sensors
+####################################
+
+retval=1
+
+DEVICE_DIR="/sys/bus/w1/devices"
+
+echo
+
+ls -al $DEVICE_DIR/28* 2>/dev/null
+
+num=`ls -al $DEVICE_DIR/28* 2>/dev/null | wc -l`
+
+
+echo
+if [ ""$num"" -lt 1 ]
+then
+	echo "*NO* 1-wire temperature sensors found!"
+	retval=1
+else
+	echo "$num 1-wire temperature sensors found"
+	retval=0
+fi
+
+# if [ 1 ]
+if [ ""$retval"" = 1 ]
+then
+	echo
+	echo "Attempting recovery..."
+	sudo rmmod w1-therm 2>&1 | grep -v "is not currently loaded"
+	sudo rmmod w1-gpio 2>&1 | grep -v "is not currently loaded"
+
+	sleep 5
+
+	# in /boot/config.txt - dtoverlay=w1-gpio,gpiopin=5
+	rslt=`sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/masters/w1-gpio.ko gpiopin=5 2>&1`
+	echo $rslt
+	numlines=`echo "$rslt" | wc -l`
+	echo "DEBUG: numlines = $numlines"
+	if [ ""$numlines"" -gt 1 ]
+	then
+		echo
+		echo "WARNING: I THINK A REBOOT IS NECESSARY!"
+		echo "WARNING: I THINK A REBOOT IS NECESSARY!"
+		echo "WARNING: I THINK A REBOOT IS NECESSARY!"
+		echo "WARNING: I THINK A REBOOT IS NECESSARY!"
+		echo
+	fi
+
+	# If all were "perfect", the following line would not be needed. (The module below would have been loaded
+	# automatically by the above module.) But we'll add it here, anyway, to cover all bases, and to potentially
+	# reveal other issues.  In short, if all went well above, we should see a "File exists" message when we try
+	# to load it (again) -
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/slaves/w1_therm.ko 2>&1 | grep -v "File exists"
+
+	sleep 5
+	echo
+	echo "Check again now."
+fi
+
+echo
+
+exit $retval
+
+
+sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/slaves/w1_therm.ko
+            /lib/modules/4.14.98+/kernel/drivers/w1/masters/w1-gpio.ko            - Wacky system messages when this was insmod 
+            /lib/modules/4.14.98-v7+/kernel/drivers/w1/masters/w1-gpio.ko

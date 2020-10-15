@@ -39,8 +39,10 @@ echo "Taking picture at ${NOW}..."
 # 2018-11-06  Modified for Warpig-V
 # 2019-01-12  Added position (LAT/LON/ALT) to picture's filename (Warpig-10)
 # 2019-01-13  Did not need to flip vertically for Warpig-10
+#/usr/bin/raspistill --awb sun --exposure auto --shutter 500 --timeout 1 --encoding jpg --hflip --output ${PICTURE_DIR}/${NOW}_${LAT}_${LON}_${ALT}.jpg
 # 2019-11-02  Did not need to flip horizontally for Warpig-12
 /usr/bin/raspistill --awb sun --exposure auto --shutter 500 --timeout 1 --encoding jpg --output ${PICTURE_DIR}/${NOW}_${LAT}_${LON}_${ALT}.jpg
+
 
 exit $?
 
