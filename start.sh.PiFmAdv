@@ -57,6 +57,7 @@ cd /home/pifm
 
 # SPECIAL "pifm" (*NOT* PiFmAdv!) WARPIG-13 AUTO-REBOOT SEQUENCE - Pause 20 minutes and reboot (just in case the
 # BCM transmitter gets "stuck", and we are jamming the APRS frequency with a constant FM signal)
+# DO NOT need the below with PiFmAdv!
 ##sleep 1200
 ##(/usr/bin/nohup /usr/local/bin/do_reboot)&
 
