@@ -24,15 +24,40 @@ else
 	retval=0
 fi
 
-# if [ 1 ]
 if [ ""$retval"" = 1 ]
+#if [ 1 ]
 then
 	echo
 	echo "Attempting recovery..."
-	sudo rmmod w1-therm 2>&1 | grep -v "is not currently loaded"
-	sudo rmmod w1-gpio 2>&1 | grep -v "is not currently loaded"
+
+	for A in i2c_dev i2c_bcm2835 w1-gpio w1-therm wire cn hwmon
+	do
+		#sudo rmmod ${A} 2>&1 | grep -v "is not currently loaded"
+		sudo rmmod ${A}
+	done
 
 	sleep 5
+
+	# WORKING ORDER -
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/i2c/busses/i2c-bcm2835.ko
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/i2c/i2c-dev.ko
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/connector/cn.ko
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/hwmon/hwmon.ko
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/wire.ko
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/masters/w1-gpio.ko gpiopin=5
+	#  sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/slaves/w1_therm.ko 
+
+	#    i2c_bcm2835
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/i2c/busses/i2c-bcm2835.ko
+	#    i2c_dev
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/i2c/i2c-dev.ko
+	#    cn
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/connector/cn.ko
+	#    hwmon
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/hwmon/hwmon.ko
+	#    wire
+	sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/wire.ko
+
 
 	# in /boot/config.txt - dtoverlay=w1-gpio,gpiopin=5
 	rslt=`sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/masters/w1-gpio.ko gpiopin=5 2>&1`
@@ -65,6 +90,15 @@ echo
 exit $retval
 
 
-sudo insmod /lib/modules/4.14.98+/kernel/drivers/w1/slaves/w1_therm.ko
-            /lib/modules/4.14.98+/kernel/drivers/w1/masters/w1-gpio.ko            - Wacky system messages when this was insmod 
-            /lib/modules/4.14.98-v7+/kernel/drivers/w1/masters/w1-gpio.ko
+LSMOD TREE RELATED TO I2C -
+
+w1_gpio                 4566  0
+  w1_therm                6679  0
+wire                   31600  2 w1_gpio,w1_therm
+	cn                      5687  1 wire
+	hwmon                  10505  1 wire
+
+i2c_bcm2835             6465  0
+i2c_dev                 6706  0
+
+
