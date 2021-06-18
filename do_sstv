@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Test Script to capture image from Pi Camera
+# Add a status line at the top with Callsign and other info
+# Convert image to SSTV WAV file
+# Send WAV with the modified PiFmAdv
+
+CALLSIGN="KA9CQL"
+
+# PER ARRL BAND PLAN - 2 meter FM SSTV Calling Frequencies -
+FREQ=145.500
+#FREQ=145.600
+
+TMP_DIR=/dev/shm
+
+while (true)
+do
+ echo "Starting loop..."
+ echo
+ echo "Capture Image"
+ ##raspistill -t 1 --width 320 --height 256 -e png -o ${TMP_DIR}/image.png
+ # 2021-06-18  Needed to drop shutter speed setting and flip vertically+horizontally for SSTV FD 2021
+ raspistill --awb sun --exposure auto --shutter 500 --vflip --hflip -t 1 --width 320 --height 256 -e png -o ${TMP_DIR}/image.png
+ 
+ # Get date in desired format and build header string
+ now=$(date +"%b%d-%H%M")
+ header="${CALLSIGN} "$now
+ 
+ # Use Mogrify (part of imagick) to add header to image file
+ echo "Add Callsign"
+ mogrify -pointsize 24 -undercolor '#00000080' -fill white -draw "text 0,20 '$header'" ${TMP_DIR}/image.png
+ 
+ # To convert the PNG to audio, then play that audio using PiFmAdv -
+ if [ 0 ]
+ then
+	# Create SSTV WAV file
+	echo "Convert Image"
+	start=$SECONDS
+	python -m pysstv --mode Robot36  --rate 22050 ${TMP_DIR}/image.png ${TMP_DIR}/out.wav
+	end=$SECONDS
+	duration=$(( end - start ))
+	echo "Conversion took $duration seconds to complete"
+
+	# Send SSTV image via PiFmAdv
+	echo "Play SSTV of image"
+	# sudo ../PiFmAdv_APRS/src/pi_fm_adv --audio ./tmp/out.wav --freq 144.34 --dev 12.5 --rds 0  --tp 0
+	sox ${TMP_DIR}/out.wav -t wav -  | sudo pi_fm_adv --freq 144.34 --dev 3.0 --audio -
+ fi
+
+ # To transmit the PNG directly out the Pi GPIO pin using pisstv -
+ if [ 1 ]
+ then
+	echo "Converting PNG to audio using pisstv..."
+	# Scottie1 (most popular in US) -
+	pisstv -r 22050 -p s1 ${TMP_DIR}/image.png
+
+	# Play the pic-converted-to-audio out the Pi GPIO pin using pi_fm_adv
+	echo "Sending picture audio via GPIO using pi_fm_adv..."
+	sudo pi_fm_adv --audio ${TMP_DIR}/image.png.wav --freq ${FREQ} --dev 12.5  --rds 0 --tp 0
+
+ fi
+ 
+
+ echo "End transmission"
+ # Sleep for a bit
+ sleep 15
+done
+
+
+exit 0
+
+
+
+
+ 2014  pisstvpp -r 22050 -p s2 /usr/share/pixmaps/debian-logo.png
+ 2015  ./pisstvpp -r 22050 -p s2 /usr/share/pixmaps/debian-logo.png
+ 2016  ls -rlat
+ 2018  ./pisstvpp -p s2 /usr/share/pixmaps/debian-logo.png
+ 2021  ls -rlat
+ 2023  ulimit -c 0
+ 2024  ulimit -c
+ 2025  wget "https://github.com/F5OEO/pisstvpp/raw/master/buzzece_qr.png"
+ 2026  ls -ralt
+ 2027  ./pisstvpp -p s2 buzzece_qr.png
+ 2029  file buzzece_qr.png.s2.rf
+ 2031  ./pisstvpp -r 22050 -p s2 buzzece_qr.png
+ 2038  sum /usr/local/bin/pisstv
+ 2039  sum /usr/local/bin/pisstvpp
+ 2040  sudo ln -s /home/pifm/pisstvpp /usr/local/bin
+ 2047  grep aplay ../*/* |& egrep -v "Is.a.directory|\.txt:"
+ 2052  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.s2.rf --freq 147.480 --dev 12.5 --cutoff 100000 --rds 0 -P 5000 --tp 0
+ 2054  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.s2.rf --freq 147.480 --dev 12.5 --cutoff 100000 --rds 0 -P 5000 --tp 0
+ 2056  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.s2.rf --freq 147.480 --dev 12.5 --cutoff 100000 --rds 0 -P 5000 --tp 0
+ 2060  ./pisstv -r 22050 -p s2 buzzece_qr.png
+ 2062  rm buzzece_qr.png.s2.rf
+ 2063  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 147.480 --dev 12.5 --cutoff 100000 --rds 0 -P 5000 --tp 0
+ 2065  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 144.390 --dev 12.5 --cutoff 100000 --rds 0 -P 5000 --tp 0
+ 2066  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 144.390 --dev 12.5 --cutoff 100000 --rds 0 --tp 0
+ 2067  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 144.390 --dev 12.5  --rds 0 --tp 0
+ 2068  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 147.480 --dev 12.5  --rds 0 --tp 0
+ 2069  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+ 2072  mv buzzece_qr.png.wav buzzece_qr.png.Scottie2.wav
+ 2073  ./pisstv -r 22050 -p r36 buzzece_qr.png
+ 2075  mv buzzece_qr.png.wav buzzece_qr.png.Robot36.wav
+ 2076  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.Robot36.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+ 2078  ./pisstv -r 22050 -p m1 buzzece_qr.png
+ 2079  mv buzzece_qr.png.wav buzzece_qr.png.Martin1.wav
+ 2080  ./pisstv -r 22050 -p m2 buzzece_qr.png
+ 2081  mv buzzece_qr.png.wav buzzece_qr.png.Martin2.wav
+
+Scottie1 (most popular in US) -
+ 2082  ./pisstv -r 22050 -p s1 buzzece_qr.png
+ 2083  mv buzzece_qr.png.wav buzzece_qr.png.Scottie1.wav
+ 2089  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.Scotty1.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+
+ 2084  ./pisstv -r 22050 -p sdx buzzece_qr.png
+ 2085  mv buzzece_qr.png.wav buzzece_qr.png.ScottieDX.wav
+ 2087  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.Martin1.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+ 2088  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.Martin2.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+ 2090  sudo pi_fm_adv --audio /home/pifm/buzzece_qr.png.Scottie1.wav --freq 146.580 --dev 12.5  --rds 0 --tp 0
+
