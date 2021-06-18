@@ -5,7 +5,7 @@
 # Convert image to SSTV WAV file
 # Send WAV with the modified PiFmAdv
 
-CALLSIGN="KA9CQL"
+CALLSIGN="N0CALL"
 
 # PER ARRL BAND PLAN - 2 meter FM SSTV Calling Frequencies -
 FREQ=145.500
@@ -23,7 +23,7 @@ do
  raspistill --awb sun --exposure auto --shutter 500 --vflip --hflip -t 1 --width 320 --height 256 -e png -o ${TMP_DIR}/image.png
  
  # Get date in desired format and build header string
- now=$(date +"%b%d-%H%M")
+ now=$(date +"%b %d %H:%M UTC")
  header="${CALLSIGN} "$now
  
  # Use Mogrify (part of imagick) to add header to image file
