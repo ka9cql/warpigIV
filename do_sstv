@@ -43,8 +43,8 @@ do
 
 	# Send SSTV image via PiFmAdv
 	echo "Play SSTV of image"
-	# sudo ../PiFmAdv_APRS/src/pi_fm_adv --audio ./tmp/out.wav --freq 144.34 --dev 12.5 --rds 0  --tp 0
-	sox ${TMP_DIR}/out.wav -t wav -  | sudo pi_fm_adv --freq 144.34 --dev 3.0 --audio -
+	# sudo ../PiFmAdv_APRS/src/pi_fm_adv --audio ./tmp/out.wav --freq ${FREQ} --dev 12.5 --rds 0  --tp 0
+	sox ${TMP_DIR}/out.wav -t wav -  | sudo pi_fm_adv --freq ${FREQ} --dev 3.0 --audio -
  fi
 
  # To transmit the PNG directly out the Pi GPIO pin using pisstv -
